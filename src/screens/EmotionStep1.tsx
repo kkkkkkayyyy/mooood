@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar'
 import { Screen } from '../App'
 
-import tensionImg from '../assets/Tensión.png'
+import tensionImg from '../assets/Tension.png'
 import impulsoImg from '../assets/Impulso.png'
 import tristezaImg from '../assets/Tristeza.png'
 import calmaImg from '../assets/calma.png'
