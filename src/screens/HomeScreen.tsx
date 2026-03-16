@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { Plus } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import BiometricHeader from '../components/BiometricHeader'
@@ -7,24 +8,29 @@ interface Props {
   onNavigate: (screen: Screen) => void
 }
 
-// Calendar data: color = mood state for that day
-const calendarDays = [
-  { day: 'V', date: 27, color: '#F0A580', textColor: '#373D59' },
-  { day: 'S', date: 28, color: '#A4DDAB', textColor: '#373D59' },
-  { day: 'D', date: 1, color: '#F0A580', textColor: '#272724' },
-  { day: 'L', date: 2, color: '#FDE478', textColor: '#272724' },
-  { day: 'M', date: 3, color: '#9CC4FF', textColor: '#272724', dayColor: '#9CC4FF' },
-  { day: 'X', date: 4, color: '#F0A580', textColor: '#656359' },
-  { day: 'J', date: 5, color: '#A4DDAB', textColor: '#656359' },
-  { day: 'V', date: 6, color: '#F3D13F', textColor: '#656359' },
-  { day: 'S', date: 7, color: '#F3D13F', textColor: '#656359' },
-  { day: 'D', date: 8, color: '#A4DDAB', textColor: '#656359' },
-  { day: 'L', date: 9, color: '#A4DDAB', textColor: '#656359' },
-  { day: 'M', date: 10, color: '#272724', textColor: '#FFFEFA', selected: true },
-  { day: 'X', date: 11, color: '#F0F3FF', textColor: '#656359' },
-  { day: 'J', date: 12, color: '#F0F3FF', textColor: '#656359' },
-  { day: 'V', date: 13, color: '#F0F3FF', textColor: '#656359' },
-]
+const DAY_NAMES = ['D', 'L', 'M', 'X', 'J', 'V', 'S']
+const PAST_COLORS = ['#F0A580', '#A4DDAB', '#FDE478', '#9CC4FF', '#F3D13F', '#A4DDAB', '#F0A580']
+
+function buildCalendarDays() {
+  const today = new Date()
+  const days = []
+  for (let offset = -7; offset <= 6; offset++) {
+    const d = new Date(today)
+    d.setDate(today.getDate() + offset)
+    const isToday = offset === 0
+    const isPast = offset < 0
+    days.push({
+      day: DAY_NAMES[d.getDay()],
+      date: d.getDate(),
+      color: isToday ? '#272724' : isPast ? PAST_COLORS[Math.abs(offset) % PAST_COLORS.length] : '#F0F3FF',
+      textColor: isToday ? '#FFFEFA' : isPast ? '#272724' : '#656359',
+      isToday,
+    })
+  }
+  return days
+}
+
+const calendarDays = buildCalendarDays()
 
 // Events for today
 const events = [
@@ -98,6 +104,12 @@ const events = [
 ]
 
 export default function HomeScreen({ onNavigate }: Props) {
+  const todayRef = useRef<HTMLDivElement>(null)
+
+  function scrollToToday() {
+    todayRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
       {/* Header */}
@@ -139,23 +151,19 @@ export default function HomeScreen({ onNavigate }: Props) {
           {/* Calendar strip */}
           <div className="flex gap-2 px-4 overflow-x-auto scroll-hide pb-1">
             {calendarDays.map((d, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 flex-shrink-0">
+              <div key={i} ref={d.isToday ? todayRef : undefined} className="flex flex-col items-center gap-1.5 flex-shrink-0">
                 <span
                   className="font-quicksand text-xs"
-                  style={{ color: d.dayColor || '#656359' }}
+                  style={{ color: d.isToday ? '#272724' : '#656359' }}
                 >
                   {d.day}
                 </span>
                 <div
                   className="flex items-center justify-center rounded-full"
-                  style={{
-                    width: 44,
-                    height: 44,
-                    background: d.color,
-                  }}
+                  style={{ width: 44, height: 44, background: d.color }}
                 >
                   <span
-                    className={`font-quicksand ${d.selected ? 'font-medium' : 'font-medium'} text-sm`}
+                    className="font-quicksand font-medium text-sm"
                     style={{ color: d.textColor }}
                   >
                     {d.date}
@@ -170,6 +178,7 @@ export default function HomeScreen({ onNavigate }: Props) {
             <span
               className="font-quicksand text-xs underline cursor-pointer"
               style={{ color: '#272724' }}
+              onClick={scrollToToday}
             >
               Volver a hoy
             </span>
