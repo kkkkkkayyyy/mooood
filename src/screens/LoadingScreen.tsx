@@ -1,67 +1,62 @@
 import { useEffect, useState } from 'react'
 
+const FRAMES = ['M', 'Mod', 'Mooood', 'Mooood']
+const FRAME_DURATIONS = [400, 400, 400, 600]
+
 export default function LoadingScreen() {
-  const [dotCount, setDotCount] = useState(1)
+  const [frame, setFrame] = useState(0)
+  const [showSmile, setShowSmile] = useState(false)
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setDotCount(d => (d % 4) + 1)
-    }, 350)
-    return () => clearInterval(t)
+    let current = 0
+
+    function advance() {
+      current += 1
+      if (current < FRAMES.length) {
+        setFrame(current)
+        if (current === FRAMES.length - 1) {
+          setTimeout(() => setShowSmile(true), 150)
+        }
+        setTimeout(advance, FRAME_DURATIONS[current])
+      }
+    }
+
+    const t = setTimeout(advance, FRAME_DURATIONS[0])
+    return () => clearTimeout(t)
   }, [])
 
   return (
     <div
-      className="flex-1 flex flex-col items-center justify-center relative overflow-hidden"
+      className="flex-1 flex flex-col items-center justify-center"
       style={{ background: '#9CADFF' }}
     >
-      {/* Subtle radial gradient overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 40%, rgba(255,255,255,0.15) 0%, transparent 70%)',
-        }}
-      />
+      <div className="flex flex-col items-center">
+        <span
+          className="font-chewy text-white"
+          style={{ fontSize: 52, lineHeight: 1, transition: 'all 0.2s ease' }}
+        >
+          {FRAMES[frame]}
+        </span>
 
-      {/* Logo mark */}
-      <div className="relative flex flex-col items-center animate-fade-in">
-        {/* "M" letter with Chewy font - the BioMind wordmark */}
-        <div
-          className="font-chewy text-white mb-1 relative"
+        {/* Smile appears on last frame */}
+        <svg
+          viewBox="0 0 60 20"
+          width="60"
+          height="20"
           style={{
-            fontSize: 88,
-            lineHeight: 1,
-            letterSpacing: '-2px',
-            textShadow: '0 4px 20px rgba(55,61,89,0.25)',
+            marginTop: 6,
+            opacity: showSmile ? 1 : 0,
+            transition: 'opacity 0.3s ease',
           }}
         >
-          M
-        </div>
-
-        {/* Animated dots */}
-        <div
-          className="font-chewy text-white/80 uppercase tracking-widest mt-2"
-          style={{ fontSize: 16 }}
-        >
-          {Array.from({ length: dotCount }).map((_, i) => (
-            <span
-              key={i}
-              style={{
-                display: 'inline-block',
-                animation: `float-blob ${0.4 + i * 0.15}s ease-in-out infinite alternate`,
-              }}
-            >
-              o
-            </span>
-          ))}
-        </div>
-
-        <p
-          className="font-chewy uppercase text-white/70 tracking-[0.2em] mt-1"
-          style={{ fontSize: 15 }}
-        >
-          cargando
-        </p>
+          <path
+            d="M8,4 Q30,22 52,4"
+            stroke="white"
+            strokeWidth="4"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
       </div>
     </div>
   )
