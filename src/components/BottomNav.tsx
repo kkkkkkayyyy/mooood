@@ -28,7 +28,7 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
             fill="#272724"
           />
           {/* Raised platform for center button */}
-          <ellipse cx="196.5" cy="2" rx="58" ry="58" fill="#272724" />
+          <ellipse cx="196.5" cy="18" rx="50" ry="50" fill="#272724" />
         </svg>
       </div>
 
@@ -46,7 +46,7 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
       {/* Left icon: Calendar */}
       <button
         onClick={onCalendarPress || (() => onNavigate('home'))}
-        className={`absolute bottom-5 left-10 transition-colors ${calendarActive ? 'text-[#9CADFF]' : 'text-white/80 hover:text-white'}`}
+        className={`absolute bottom-7 left-10 transition-colors ${calendarActive ? 'text-[#9CADFF]' : 'text-white/80 hover:text-white'}`}
         aria-label="Calendar"
       >
         <Calendar size={24} strokeWidth={1.5} />
@@ -56,7 +56,7 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
       <button
         onClick={onAddPress || (() => onNavigate('emotion-step1'))}
         className="absolute left-1/2 -translate-x-1/2"
-        style={{ bottom: 14 }}
+        style={{ bottom: 22 }}
         aria-label="Add entry"
       >
         <div
@@ -75,8 +75,8 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
 
       {/* Right icon: Profile */}
       <button
-        onClick={() => {}}
-        className="absolute bottom-5 right-10 text-white/80 hover:text-white transition-colors"
+        onClick={() => onNavigate('profile')}
+        className="absolute bottom-7 right-10 text-white/80 hover:text-white transition-colors"
         aria-label="Profile"
       >
         <User size={26} strokeWidth={1.5} />
