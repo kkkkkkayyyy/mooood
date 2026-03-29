@@ -8,6 +8,7 @@ import { EventDetail } from './EventDetailScreen'
 interface Props {
   onNavigate: (screen: Screen) => void
   userName?: string
+  wearableConnected?: boolean
   onEventDetail?: (event: EventDetail) => void
 }
 
@@ -172,7 +173,7 @@ const CATEGORY_EMOJI: Record<Category, string | null> = {
 const DAY_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
-export default function HomeScreen({ onNavigate, userName, onEventDetail }: Props) {
+export default function HomeScreen({ onNavigate, userName, wearableConnected = false, onEventDetail }: Props) {
   const todayRef = useRef<HTMLDivElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
   const [period, setPeriod] = useState<Period>('Semana')
@@ -317,7 +318,24 @@ export default function HomeScreen({ onNavigate, userName, onEventDetail }: Prop
       <div className="flex-1 overflow-y-auto scroll-hide">
         {/* Biometric Header Card */}
         <div className="pt-1 pb-2">
-          <BiometricHeader status="activation" bpm={72} hrv={65} />
+          {wearableConnected ? (
+            <BiometricHeader status="activation" bpm={72} hrv={65} />
+          ) : (
+            <div
+              className="mx-4 mb-3 rounded-2xl px-4 py-4 flex items-center gap-3 cursor-pointer"
+              style={{ background: '#F0F0F0', border: '1.5px dashed #C0C0C0' }}
+              onClick={() => onNavigate('profile')}
+            >
+              <div className="flex items-center justify-center rounded-full flex-shrink-0" style={{ width: 36, height: 36, background: '#E0E0E0' }}>
+                <span style={{ fontSize: 18 }}>⌚</span>
+              </div>
+              <div className="flex-1">
+                <p className="font-quicksand font-semibold" style={{ fontSize: 13, color: '#272724' }}>Datos no disponibles</p>
+                <p className="font-quicksand" style={{ fontSize: 11, color: '#9B9789' }}>Conecta tu wearable para ver tus métricas en tiempo real</p>
+              </div>
+              <span className="font-quicksand font-semibold" style={{ fontSize: 11, color: '#9CADFF' }}>Conectar →</span>
+            </div>
+          )}
         </div>
 
         {/* Mood Calendar */}

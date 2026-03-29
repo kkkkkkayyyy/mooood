@@ -8,9 +8,12 @@ interface Props {
   onNavigate: (screen: Screen) => void
   userName?: string
   userEmail?: string
+  wearableConnected?: boolean
+  onConnectWearable?: () => void
+  onDisconnectWearable?: () => void
 }
 
-export default function ProfileScreen({ onNavigate, userName, userEmail }: Props) {
+export default function ProfileScreen({ onNavigate, userName, userEmail, wearableConnected = false, onConnectWearable, onDisconnectWearable }: Props) {
   const [notifications, setNotifications] = useState<'sensible' | 'picos' | 'siempre'>('sensible')
 
   const notifDescriptions = {
@@ -252,18 +255,43 @@ export default function ProfileScreen({ onNavigate, userName, userEmail }: Props
 
         {/* Dispositivo */}
         <p className="font-quicksand mb-2" style={{ fontSize: 13, color: '#9B9789' }}>Dispositivo</p>
-        <div className="flex items-center justify-between px-4 py-3 rounded-2xl mb-1" style={{ background: '#EEEEFF' }}>
-          <div className="flex items-center gap-2">
-            <span className="font-quicksand font-medium" style={{ fontSize: 14, color: '#272724' }}>Apple Watch</span>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4CAF50' }} />
-          </div>
-          <div className="flex items-center gap-3">
-            <Trash2 size={18} color="#272724" strokeWidth={1.5} />
-            <RefreshCw size={18} color="#272724" strokeWidth={1.5} />
-            <ExternalLink size={18} color="#272724" strokeWidth={1.5} />
-          </div>
-        </div>
-        <p className="font-quicksand mb-4" style={{ fontSize: 11, color: '#9B9789' }}>*Tus datos biométricos están cifrados de extremo a extremo</p>
+        {wearableConnected ? (
+          <>
+            <div className="flex items-center justify-between px-4 py-3 rounded-2xl mb-1" style={{ background: '#EEEEFF' }}>
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: 16 }}>⌚</span>
+                <span className="font-quicksand font-medium" style={{ fontSize: 14, color: '#272724' }}>Wearable conectado</span>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#4CAF50' }} />
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={onDisconnectWearable}>
+                  <Trash2 size={18} color="#E05C3A" strokeWidth={1.5} />
+                </button>
+                <RefreshCw size={18} color="#272724" strokeWidth={1.5} />
+                <ExternalLink size={18} color="#272724" strokeWidth={1.5} />
+              </div>
+            </div>
+            <p className="font-quicksand mb-4" style={{ fontSize: 11, color: '#9B9789' }}>*Tus datos biométricos están cifrados de extremo a extremo</p>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between px-4 py-3 rounded-2xl mb-1" style={{ background: '#F0F0F0', border: '1.5px dashed #C0C0C0' }}>
+              <div className="flex items-center gap-2">
+                <span style={{ fontSize: 16 }}>⌚</span>
+                <span className="font-quicksand font-medium" style={{ fontSize: 14, color: '#9B9789' }}>No conectado</span>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#D0D0D0' }} />
+              </div>
+            </div>
+            <p className="font-quicksand mb-2" style={{ fontSize: 11, color: '#9B9789' }}>Conecta un wearable para ver tus datos en tiempo real.</p>
+            <button
+              onClick={onConnectWearable}
+              className="w-full font-quicksand font-semibold py-3 rounded-2xl mb-4"
+              style={{ background: '#9CADFF', color: '#272724', fontSize: 14 }}
+            >
+              Conectar wearable
+            </button>
+          </>
+        )}
 
         {/* Calendario */}
         <p className="font-quicksand mb-2" style={{ fontSize: 13, color: '#9B9789' }}>Calendario</p>

@@ -15,12 +15,18 @@ import CompletionScreen from './screens/CompletionScreen'
 import MoodHistoryScreen from './screens/MoodHistoryScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import EventDetailScreen, { EventDetail } from './screens/EventDetailScreen'
+import PermissionsScreen from './screens/PermissionsScreen'
+import OnboardingScreen from './screens/OnboardingScreen'
+import WearableSearchScreen from './screens/WearableSearchScreen'
 import { supabase } from './lib/supabase'
 
 export type Screen =
   | 'loading'
   | 'login'
   | 'register'
+  | 'permissions'
+  | 'onboarding'
+  | 'wearable-search'
   | 'home'
   | 'profile'
   | 'mood-history'
@@ -39,6 +45,8 @@ export default function App() {
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [selectedEvent, setSelectedEvent] = useState<EventDetail | undefined>(undefined)
+  const [wearableConnected, setWearableConnected] = useState(false)
+  const [wearableReturnTo, setWearableReturnTo] = useState<Screen>('home')
 
   // Auto-advance from loading → login (or home if already authenticated)
   useEffect(() => {
@@ -49,7 +57,9 @@ export default function App() {
           const name = data.session.user?.user_metadata?.full_name || data.session.user?.email?.split('@')[0] || ''
           setUserName(name)
           setUserEmail(data.session.user?.email || '')
-          setScreen('home')
+          // Check if onboarding already done
+          const onboarded = localStorage.getItem('mooood_onboarded')
+          setScreen(onboarded ? 'home' : 'onboarding')
         } else {
           setScreen('login')
         }
@@ -69,13 +79,41 @@ export default function App() {
   }, [])
 
   const navigate = (s: Screen) => setScreen(s)
+
   const onAuthSuccess = async () => {
     const { data } = await supabase.auth.getUser()
     const name = data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || ''
     setUserName(name)
     setUserEmail(data.user?.email || '')
+    // Always show onboarding on first login
+    const onboarded = localStorage.getItem('mooood_onboarded')
+    setScreen(onboarded ? 'home' : 'onboarding')
+  }
+
+  const onOnboardingComplete = (connected: boolean = false) => {
+    setWearableConnected(connected)
+    localStorage.setItem('mooood_onboarded', '1')
+    if (connected) localStorage.setItem('mooood_wearable', '1')
     setScreen('home')
   }
+
+  const onConnectWearable = () => {
+    setWearableConnected(true)
+    localStorage.setItem('mooood_wearable', '1')
+    localStorage.setItem('mooood_onboarded', '1')
+  }
+
+  const onDisconnectWearable = () => {
+    setWearableConnected(false)
+    localStorage.removeItem('mooood_wearable')
+  }
+
+  // Restore wearable state on load
+  useEffect(() => {
+    if (localStorage.getItem('mooood_wearable') === '1') {
+      setWearableConnected(true)
+    }
+  }, [])
 
   const renderScreen = () => {
     switch (screen) {
@@ -85,12 +123,22 @@ export default function App() {
         return <LoginScreen onNavigate={navigate} onAuthSuccess={onAuthSuccess} />
       case 'register':
         return <RegisterScreen onNavigate={navigate} onAuthSuccess={onAuthSuccess} />
+      case 'onboarding':
+        return <OnboardingScreen onNavigate={navigate} onComplete={() => setScreen('permissions')} />
+      case 'permissions':
+        return <PermissionsScreen
+          onNavigate={navigate}
+          onAccept={() => { setWearableReturnTo('home'); setScreen('wearable-search') }}
+          onSkip={() => onOnboardingComplete(false)}
+        />
+      case 'wearable-search':
+        return <WearableSearchScreen onNavigate={navigate} returnTo={wearableReturnTo} onConnected={onConnectWearable} />
       case 'home':
-        return <HomeScreen onNavigate={navigate} userName={userName} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} />
+        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} />
       case 'event-detail':
         return <EventDetailScreen onNavigate={navigate} event={selectedEvent} />
       case 'profile':
-        return <ProfileScreen onNavigate={navigate} userName={userName} userEmail={userEmail} />
+        return <ProfileScreen onNavigate={navigate} userName={userName} userEmail={userEmail} wearableConnected={wearableConnected} onConnectWearable={() => { setWearableReturnTo('profile'); setScreen('wearable-search') }} onDisconnectWearable={onDisconnectWearable} />
       case 'mood-history':
         return <MoodHistoryScreen onNavigate={navigate} />
       case 'emotion-step1':
@@ -110,7 +158,7 @@ export default function App() {
       case 'completion':
         return <CompletionScreen onNavigate={navigate} />
       default:
-        return <HomeScreen onNavigate={navigate} />
+        return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} />
     }
   }
 
