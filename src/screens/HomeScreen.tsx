@@ -187,6 +187,7 @@ const CATEGORY_EMOJI: Record<Category, string | null> = {
   Trabajo: '💼', Social: '👥', Salud: '💪', Otro: null,
 }
 
+
 const DAY_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
@@ -504,6 +505,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
               const isLocked = event.locked || isFutureDay || isEventFuture
               const overrideBg = emotionOverrides[`${selectedDayIndex}-${event.id}`]
               const effectiveBg = overrideBg ?? event.bg
+              const displayBg = isEventFuture || isFutureDay ? '#EFEFEF' : effectiveBg
               const isNoEmotionPast = !isLocked && effectiveBg === '#EFEFEF'
               const isExpanded = isNoEmotionPast || expandedIds.has(event.id)
               return (
@@ -512,7 +514,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                   onClick={() => !isLocked && toggleEvent(event.id)}
                   className="w-full text-left card-press"
                   style={{
-                    background: effectiveBg,
+                    background: displayBg,
                     borderRadius: 15,
                     padding: isExpanded ? '20px 15px 25px' : '16px 15px',
                     opacity: isLocked ? 0.45 : 1,
@@ -524,7 +526,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
                       <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
-                      {!isLocked && BG_TO_EMOTION_IMG[effectiveBg] && <img src={BG_TO_EMOTION_IMG[effectiveBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
+                      {!isLocked && BG_TO_EMOTION_IMG[displayBg] && <img src={BG_TO_EMOTION_IMG[displayBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
                     </div>
                     {event.vfc && !isLocked && (
                       <div className="flex-shrink-0 px-2 py-1 rounded-xl" style={{ background: '#FFFEFA' }}>
