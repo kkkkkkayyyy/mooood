@@ -7,16 +7,16 @@ import impulsoImg from '../assets/Impulso.png'
 import tristezaImg from '../assets/Tristeza.png'
 import calmaImg from '../assets/calma.png'
 
-interface Props { onNavigate: (screen: Screen) => void }
+interface Props { onNavigate: (screen: Screen) => void; onSelectEmotion?: (bg: string) => void }
 
 const emotions = [
-  { key: 'tension',  label: 'Tension',  img: tensionImg,  nextScreen: 'emotion-step2' as Screen },
-  { key: 'impulso',  label: 'Impulso',  img: impulsoImg,  nextScreen: 'intensity' as Screen },
-  { key: 'tristeza', label: 'Tristeza', img: tristezaImg, nextScreen: 'intensity' as Screen },
-  { key: 'calma',    label: 'Calma',    img: calmaImg,    nextScreen: 'intensity' as Screen },
+  { key: 'tension',  label: 'Tension',  img: tensionImg,  nextScreen: 'emotion-step2' as Screen, bg: '#FFCEB6' },
+  { key: 'impulso',  label: 'Impulso',  img: impulsoImg,  nextScreen: 'intensity' as Screen,      bg: '#FFF1B7' },
+  { key: 'tristeza', label: 'Tristeza', img: tristezaImg, nextScreen: 'intensity' as Screen,      bg: '#E0E6FF' },
+  { key: 'calma',    label: 'Calma',    img: calmaImg,    nextScreen: 'intensity' as Screen,      bg: '#BCE5C1' },
 ]
 
-export default function EmotionStep1({ onNavigate }: Props) {
+export default function EmotionStep1({ onNavigate, onSelectEmotion }: Props) {
   return (
     <div className='flex-1 flex flex-col overflow-hidden' style={{ background: '#FFFEFA' }}>
       <div className='flex-shrink-0 px-5 pt-14'>
@@ -39,8 +39,8 @@ export default function EmotionStep1({ onNavigate }: Props) {
           Toca la emocion que mejor te represente.
         </p>
         <div className='grid grid-cols-2 gap-x-4 gap-y-8'>
-          {emotions.map(({ key, label, img, nextScreen }) => (
-            <button key={key} onClick={() => onNavigate(nextScreen)} className='flex flex-col items-center gap-5 card-press'>
+          {emotions.map(({ key, label, img, nextScreen, bg }) => (
+            <button key={key} onClick={() => { onSelectEmotion?.(bg); onNavigate(nextScreen) }} className='flex flex-col items-center gap-5 card-press'>
               <div className='animate-float-blob flex items-center justify-center' style={{ height: 130 }}>
                 <img src={img} alt={label} style={{ width: 120, height: 120, objectFit: 'contain' }} />
               </div>

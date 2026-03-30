@@ -47,7 +47,7 @@ export default function IntensityScreen({ onNavigate }: Props) {
       <div className="flex-shrink-0 px-5 pt-14">
         <div className="flex items-center justify-between mb-2">
           <button
-            onClick={() => onNavigate('emotion-step2')}
+            onClick={() => onNavigate('pre-calm')}
             className="font-quicksand font-bold opacity-70 text-base"
             style={{ color: '#272724' }}
           >
@@ -150,7 +150,7 @@ export default function IntensityScreen({ onNavigate }: Props) {
 
         {/* Continue */}
         <button
-          onClick={() => onNavigate('body-heatmap')}
+          onClick={() => onNavigate('pre-calm')}
           className="w-full flex items-center justify-center"
           style={{
             height: 60,

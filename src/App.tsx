@@ -18,7 +18,9 @@ import EventDetailScreen, { EventDetail } from './screens/EventDetailScreen'
 import PermissionsScreen from './screens/PermissionsScreen'
 import OnboardingScreen from './screens/OnboardingScreen'
 import WearableSearchScreen from './screens/WearableSearchScreen'
-import { supabase } from './lib/supabase'
+import TipScreen from './screens/TipScreen'
+import ContextRapid from './screens/ContextRapid'
+// import { supabase } from './lib/supabase' // bypassed — no credentials
 
 export type Screen =
   | 'loading'
@@ -33,10 +35,12 @@ export type Screen =
   | 'event-detail'
   | 'emotion-step1'
   | 'emotion-step2'
-  | 'intensity'
   | 'body-heatmap'
+  | 'intensity'
+  | 'pre-calm'
   | 'context'
   | 'calm-method'
+  | 'context-rapid'
   | 'system-summary'
   | 'completion'
 
@@ -47,47 +51,46 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState<EventDetail | undefined>(undefined)
   const [wearableConnected, setWearableConnected] = useState(false)
   const [wearableReturnTo, setWearableReturnTo] = useState<Screen>('home')
+  const [contextEventName, setContextEventName] = useState<string>('')
+  const [contextEventRef, setContextEventRef] = useState<{ dayIndex: number; eventId: number } | null>(null)
+  const [selectedEmotionBg, setSelectedEmotionBg] = useState<string>('')
+  const [emotionOverrides, setEmotionOverrides] = useState<Record<string, string>>({})
+  const [customEvents, setCustomEvents] = useState<Record<number, object[]>>({})
+  const [deletedKeys, setDeletedKeys] = useState<Set<string>>(new Set())
 
-  // Auto-advance from loading → login (or home if already authenticated)
   useEffect(() => {
     if (screen === 'loading') {
-      const t = setTimeout(async () => {
-        const { data } = await supabase.auth.getSession()
-        if (data.session) {
-          const name = data.session.user?.user_metadata?.full_name || data.session.user?.email?.split('@')[0] || ''
-          setUserName(name)
-          setUserEmail(data.session.user?.email || '')
-          // Check if onboarding already done
-          const onboarded = localStorage.getItem('mooood_onboarded')
-          setScreen(onboarded ? 'home' : 'onboarding')
-        } else {
-          setScreen('login')
-        }
-      }, 1800)
+      // Skip auth — go straight to home
+      const t = setTimeout(() => setScreen('home'), 1800)
+      return () => clearTimeout(t)
+    }
+    if (screen === 'pre-calm') {
+      const t = setTimeout(() => setScreen('calm-method'), 2800)
       return () => clearTimeout(t)
     }
   }, [screen])
 
-  // Listen for auth state changes (only react to sign-out)
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        setScreen('login')
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [])
-
   const navigate = (s: Screen) => setScreen(s)
 
-  const onAuthSuccess = async () => {
-    const { data } = await supabase.auth.getUser()
-    const name = data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || ''
-    setUserName(name)
-    setUserEmail(data.user?.email || '')
-    // Always show onboarding on first login
-    const onboarded = localStorage.getItem('mooood_onboarded')
-    setScreen(onboarded ? 'home' : 'onboarding')
+  const onRegisterEvent = (eventName: string, dayIndex?: number, eventId?: number) => {
+    setContextEventName(eventName)
+    setContextEventRef(dayIndex !== undefined && eventId !== undefined ? { dayIndex, eventId } : null)
+    setSelectedEmotionBg('')
+    setScreen('emotion-step1')
+  }
+
+  const onSelectEmotion = (bg: string) => setSelectedEmotionBg(bg)
+
+  const onCompleteRegistration = () => {
+    if (contextEventRef && selectedEmotionBg) {
+      const key = `${contextEventRef.dayIndex}-${contextEventRef.eventId}`
+      setEmotionOverrides(prev => ({ ...prev, [key]: selectedEmotionBg }))
+    }
+    setScreen('system-summary')
+  }
+
+  const onAuthSuccess = () => {
+    setScreen('home')
   }
 
   const onOnboardingComplete = (connected: boolean = false) => {
@@ -134,7 +137,7 @@ export default function App() {
       case 'wearable-search':
         return <WearableSearchScreen onNavigate={navigate} returnTo={wearableReturnTo} onConnected={onConnectWearable} />
       case 'home':
-        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} />
+        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
       case 'event-detail':
         return <EventDetailScreen onNavigate={navigate} event={selectedEvent} />
       case 'profile':
@@ -142,23 +145,27 @@ export default function App() {
       case 'mood-history':
         return <MoodHistoryScreen onNavigate={navigate} />
       case 'emotion-step1':
-        return <EmotionStep1 onNavigate={navigate} />
+        return <EmotionStep1 onNavigate={navigate} onSelectEmotion={onSelectEmotion} />
       case 'emotion-step2':
         return <EmotionStep2 onNavigate={navigate} />
-      case 'intensity':
-        return <IntensityScreen onNavigate={navigate} />
       case 'body-heatmap':
         return <BodyHeatmap onNavigate={navigate} />
+      case 'intensity':
+        return <IntensityScreen onNavigate={navigate} />
+      case 'pre-calm':
+        return <TipScreen onNavigate={navigate} />
       case 'context':
         return <ContextScreen onNavigate={navigate} />
       case 'calm-method':
         return <CalmMethod onNavigate={navigate} />
+      case 'context-rapid':
+        return <ContextRapid onNavigate={navigate} contextEventName={contextEventName} onSave={onCompleteRegistration} />
       case 'system-summary':
         return <SystemSummary onNavigate={navigate} />
       case 'completion':
         return <CompletionScreen onNavigate={navigate} />
       default:
-        return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} />
+        return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
     }
   }
 

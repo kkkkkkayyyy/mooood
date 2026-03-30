@@ -15,159 +15,110 @@ const PHASES: { phase: Phase; label: string; sublabel: string; duration: number 
 
 export default function CalmMethod({ onNavigate }: Props) {
   const [phaseIdx, setPhaseIdx] = useState(0)
-  const [cycle, setCycle] = useState(0)
 
   useEffect(() => {
     const current = PHASES[phaseIdx]
     const t = setTimeout(() => {
-      const next = (phaseIdx + 1) % PHASES.length
-      if (next === 0) setCycle(c => c + 1)
-      setPhaseIdx(next)
+      setPhaseIdx(i => (i + 1) % PHASES.length)
     }, current.duration)
     return () => clearTimeout(t)
   }, [phaseIdx])
 
-  const { phase, label, sublabel } = PHASES[phaseIdx]
+  const { phase, label } = PHASES[phaseIdx]
 
-  const ringBaseSize = 200
-  const ringScale = phase === 'inhala' ? 1.15 : phase === 'sostén' ? 1.15 : 1.0
+  // Inner circle: expands on inhala, holds on sostén, shrinks on exhala
+  const innerScale = phase === 'inhala' ? 1.0 : phase === 'sostén' ? 1.0 : 0.55
+  const innerDuration = phase === 'inhala' ? 4 : phase === 'sostén' ? 0.3 : 6
 
-  const ringLayers = [
-    { size: ringBaseSize * 1.4,  opacity: 0.10, delay: '0s' },
-    { size: ringBaseSize * 1.2,  opacity: 0.16, delay: '0.2s' },
-    { size: ringBaseSize * 1.05, opacity: 0.24, delay: '0.4s' },
-    { size: ringBaseSize,        opacity: 0.85, delay: '0.6s' },
+  // Static outer rings — always blue, no animation
+  const staticRings = [
+    { size: 330, opacity: 0.10 },
+    { size: 270, opacity: 0.16 },
+    { size: 215, opacity: 0.22 },
   ]
 
-  const phaseColor: Record<Phase, string> = {
-    'inhala': '#9CADFF',
-    'sostén': '#A4DDAB',
-    'exhala': '#9CC4FF',
-  }
-
-  const color = phaseColor[phase]
-
   return (
-    <div
-      className="flex-1 flex flex-col overflow-hidden"
-      style={{ background: '#FFFEFA' }}
-    >
-      {/* Header */}
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
+      {/* Nav row — same position as IntensityScreen */}
       <div className="flex-shrink-0 px-5 pt-14">
-        <div className="flex items-center justify-between mb-2">
-          <div style={{ width: 60 }} />
-          <h1
-            className="font-chewy text-2xl text-center"
-            style={{ color: '#272724', lineHeight: 1.2 }}
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => onNavigate('intensity')}
+            className="font-quicksand font-bold opacity-70 text-base"
+            style={{ color: '#272724' }}
           >
-            Método de calma
-          </h1>
+            {'< Atrás'}
+          </button>
           <button
             onClick={() => onNavigate('home')}
-            className="flex items-center justify-center w-12 h-12"
+            className="flex items-center justify-center font-quicksand font-bold opacity-70"
+            style={{ fontSize: 28, color: '#272724', width: 40, height: 40, lineHeight: 1 }}
           >
-            <span
-              className="font-quicksand font-bold opacity-70"
-              style={{ fontSize: 28, color: '#272724', lineHeight: 1 }}
-            >
-              ×
-            </span>
+            x
           </button>
         </div>
+      </div>
+
+      {/* Centered content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-5 pb-8">
+        <h1
+          className="font-chewy text-center w-full"
+          style={{ fontSize: 28, color: '#272724', lineHeight: 1.2 }}
+        >
+          Método de calma
+        </h1>
         <p
-          className="font-quicksand text-center mt-1"
-          style={{ fontSize: 14, color: '#656359' }}
+          className="font-quicksand font-bold text-center mt-1 opacity-70 w-full"
+          style={{ fontSize: 16, color: '#272724' }}
         >
           Sigue el círculo con la respiración
         </p>
-      </div>
 
-      {/* Breathing circles */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="relative flex items-center justify-center" style={{ width: 320, height: 320 }}>
-          {ringLayers.map((ring, i) => (
+        {/* Breathing circles */}
+        <div className="relative flex items-center justify-center my-8" style={{ width: 340, height: 340 }}>
+          {staticRings.map((ring, i) => (
             <div
               key={i}
               className="absolute rounded-full"
-              style={{
-                width: ring.size,
-                height: ring.size,
-                background: color,
-                opacity: ring.opacity,
-                transition: `transform ${phase === 'inhala' ? 4 : phase === 'sostén' ? 0.5 : 6}s ease-in-out, opacity 0.8s ease`,
-                transform: `scale(${i === ringLayers.length - 1 ? ringScale : ringScale * (0.92 + i * 0.03)})`,
-                animationDelay: ring.delay,
-              }}
+              style={{ width: ring.size, height: ring.size, background: '#9CADFF', opacity: ring.opacity }}
             />
           ))}
-          {/* Center text */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              width: 165, height: 165,
+              background: '#9CADFF', opacity: 0.9,
+              transform: `scale(${innerScale})`,
+              transition: `transform ${innerDuration}s ease-in-out`,
+            }}
+          />
           <div className="absolute z-10 flex flex-col items-center">
-            <span
-              className="font-chewy"
-              style={{ fontSize: 36, color: '#FFFEFA', lineHeight: 1 }}
-            >
+            <span className="font-chewy" style={{ fontSize: 36, color: '#FFFEFA', lineHeight: 1 }}>
               {label}
-            </span>
-            <span
-              className="font-quicksand mt-1"
-              style={{ fontSize: 13, color: 'rgba(255,254,250,0.75)' }}
-            >
-              {sublabel}
             </span>
           </div>
         </div>
 
-        {/* Cycle counter */}
-        <div className="flex gap-2 mt-4">
-          {[0, 1, 2].map(i => (
-            <div
-              key={i}
-              className="rounded-full transition-all duration-500"
-              style={{
-                width: 8,
-                height: 8,
-                background: i < cycle % 3 + 1 ? color : 'rgba(156,173,255,0.25)',
-              }}
-            />
-          ))}
+        {/* Buttons */}
+        <div className="w-full flex flex-col gap-3 mt-12">
+          <button
+            onClick={() => onNavigate('context-rapid')}
+            className="w-full flex items-center justify-center"
+            style={{ height: 60, background: '#272724', borderRadius: 42 }}
+          >
+            <span className="font-quicksand font-semibold" style={{ fontSize: 20, color: '#FFFEFA' }}>
+              Estoy mejor
+            </span>
+          </button>
+          <button
+            onClick={() => onNavigate('context-rapid')}
+            className="w-full flex items-center justify-center"
+          >
+            <span className="font-quicksand font-semibold underline" style={{ fontSize: 14, color: '#272724', opacity: 0.6 }}>
+              Necesito otro método de relajación
+            </span>
+          </button>
         </div>
-        <p
-          className="font-quicksand mt-2"
-          style={{ fontSize: 12, color: '#656359' }}
-        >
-          Ciclo {cycle + 1}
-        </p>
-      </div>
-
-      {/* Bottom actions */}
-      <div className="flex-shrink-0 px-5 pb-8 flex flex-col gap-3">
-        <button
-          onClick={() => onNavigate('system-summary')}
-          className="w-full flex items-center justify-center"
-          style={{
-            height: 60,
-            background: '#272724',
-            borderRadius: 42,
-          }}
-        >
-          <span
-            className="font-quicksand font-semibold"
-            style={{ fontSize: 20, color: '#FFFEFA' }}
-          >
-            Estoy mejor
-          </span>
-        </button>
-        <button
-          onClick={() => onNavigate('system-summary')}
-          className="w-full flex items-center justify-center"
-        >
-          <span
-            className="font-quicksand font-semibold underline"
-            style={{ fontSize: 14, color: '#272724', opacity: 0.6 }}
-          >
-            Necesito otro método
-          </span>
-        </button>
       </div>
     </div>
   )
