@@ -38,17 +38,14 @@ export default function CalmMethod({ onNavigate }: Props) {
   ]
 
   return (
-    <div
-      className="flex-1 flex flex-col overflow-hidden"
-      style={{ background: '#FFFEFA' }}
-    >
-      {/* Header */}
-      <div className="flex-shrink-0 px-5 pt-3">
+    <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
+      {/* Nav row — same position as IntensityScreen */}
+      <div className="flex-shrink-0 px-5 pt-14">
         <div className="flex items-center justify-between">
           <button
             onClick={() => onNavigate('intensity')}
-            className="font-quicksand font-bold opacity-70"
-            style={{ fontSize: 16, color: '#272724', height: 40 }}
+            className="font-quicksand font-bold opacity-70 text-base"
+            style={{ color: '#272724' }}
           >
             {'< Atrás'}
           </button>
@@ -60,89 +57,68 @@ export default function CalmMethod({ onNavigate }: Props) {
             x
           </button>
         </div>
+      </div>
+
+      {/* Centered content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-5 pb-8">
         <h1
-          className="font-chewy text-center"
+          className="font-chewy text-center w-full"
           style={{ fontSize: 28, color: '#272724', lineHeight: 1.2 }}
         >
           Método de calma
         </h1>
         <p
-          className="font-quicksand font-bold text-center mt-1 opacity-70"
+          className="font-quicksand font-bold text-center mt-1 opacity-70 w-full"
           style={{ fontSize: 16, color: '#272724' }}
         >
           Sigue el círculo con la respiración
         </p>
-      </div>
 
-      {/* Breathing circles */}
-      <div className="flex-1 flex flex-col items-center justify-start pt-6">
-        <div className="relative flex items-center justify-center" style={{ width: 340, height: 340 }}>
-          {/* Static outer rings — always blue, no animation */}
+        {/* Breathing circles */}
+        <div className="relative flex items-center justify-center my-8" style={{ width: 340, height: 340 }}>
           {staticRings.map((ring, i) => (
             <div
               key={i}
               className="absolute rounded-full"
-              style={{
-                width: ring.size,
-                height: ring.size,
-                background: '#9CADFF',
-                opacity: ring.opacity,
-              }}
+              style={{ width: ring.size, height: ring.size, background: '#9CADFF', opacity: ring.opacity }}
             />
           ))}
-          {/* Animated inner circle — breathes with the phase */}
           <div
             className="absolute rounded-full"
             style={{
-              width: 165,
-              height: 165,
-              background: '#9CADFF',
-              opacity: 0.9,
+              width: 165, height: 165,
+              background: '#9CADFF', opacity: 0.9,
               transform: `scale(${innerScale})`,
               transition: `transform ${innerDuration}s ease-in-out`,
             }}
           />
-          {/* Center text */}
           <div className="absolute z-10 flex flex-col items-center">
-            <span
-              className="font-chewy"
-              style={{ fontSize: 36, color: '#FFFEFA', lineHeight: 1 }}
-            >
+            <span className="font-chewy" style={{ fontSize: 36, color: '#FFFEFA', lineHeight: 1 }}>
               {label}
             </span>
           </div>
         </div>
-      </div>
 
-      {/* Bottom actions */}
-      <div className="flex-shrink-0 px-5 pb-6 flex flex-col gap-3">
-        <button
-          onClick={() => onNavigate('system-summary')}
-          className="w-full flex items-center justify-center"
-          style={{
-            height: 60,
-            background: '#272724',
-            borderRadius: 42,
-          }}
-        >
-          <span
-            className="font-quicksand font-semibold"
-            style={{ fontSize: 20, color: '#FFFEFA' }}
+        {/* Buttons */}
+        <div className="w-full flex flex-col gap-3 mt-12">
+          <button
+            onClick={() => onNavigate('context-rapid')}
+            className="w-full flex items-center justify-center"
+            style={{ height: 60, background: '#272724', borderRadius: 42 }}
           >
-            Estoy mejor
-          </span>
-        </button>
-        <button
-          onClick={() => onNavigate('system-summary')}
-          className="w-full flex items-center justify-center"
-        >
-          <span
-            className="font-quicksand font-semibold underline"
-            style={{ fontSize: 14, color: '#272724', opacity: 0.6 }}
+            <span className="font-quicksand font-semibold" style={{ fontSize: 20, color: '#FFFEFA' }}>
+              Estoy mejor
+            </span>
+          </button>
+          <button
+            onClick={() => onNavigate('context-rapid')}
+            className="w-full flex items-center justify-center"
           >
-            Necesito otro método de relajación
-          </span>
-        </button>
+            <span className="font-quicksand font-semibold underline" style={{ fontSize: 14, color: '#272724', opacity: 0.6 }}>
+              Necesito otro método de relajación
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -1,15 +1,32 @@
-import { useRef, useState, useEffect } from 'react'
-import { Plus } from 'lucide-react'
+import { useRef, useState, useEffect, Dispatch, SetStateAction } from 'react'
+import { Plus, Trash2 } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import BiometricHeader from '../components/BiometricHeader'
 import { Screen } from '../App'
 import { EventDetail } from './EventDetailScreen'
+import tensionImg from '../assets/Tension.png'
+import impulsoImg from '../assets/Impulso.png'
+import tristezaImg from '../assets/Tristeza.png'
+import calmaImg from '../assets/calma.png'
+
+const BG_TO_EMOTION_IMG: Record<string, string> = {
+  '#FFCEB6': tensionImg,
+  '#FFF1B7': impulsoImg,
+  '#BCE5C1': calmaImg,
+  '#E0E6FF': tristezaImg,
+}
 
 interface Props {
   onNavigate: (screen: Screen) => void
   userName?: string
   wearableConnected?: boolean
   onEventDetail?: (event: EventDetail) => void
+  onRegisterEvent?: (eventName: string, dayIndex?: number, eventId?: number) => void
+  emotionOverrides?: Record<string, string>
+  customEvents?: Record<number, EventItem[]>
+  setCustomEvents?: Dispatch<SetStateAction<Record<number, EventItem[]>>>
+  deletedKeys?: Set<string>
+  setDeletedKeys?: Dispatch<SetStateAction<Set<string>>>
 }
 
 type Period = 'Semana' | 'Mes'
@@ -173,7 +190,7 @@ const CATEGORY_EMOJI: Record<Category, string | null> = {
 const DAY_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
-export default function HomeScreen({ onNavigate, userName, wearableConnected = false, onEventDetail }: Props) {
+export default function HomeScreen({ onNavigate, userName, wearableConnected = false, onEventDetail, onRegisterEvent, emotionOverrides = {}, customEvents: appCustomEvents, setCustomEvents: appSetCustomEvents, deletedKeys: appDeletedKeys, setDeletedKeys: appSetDeletedKeys }: Props) {
   const todayRef = useRef<HTMLDivElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
   const [period, setPeriod] = useState<Period>('Semana')
@@ -183,7 +200,10 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
   const [stripMonth, setStripMonth] = useState(today.getMonth())
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set())
   const [selectedDayIndex, setSelectedDayIndex] = useState<number>(todayIndex)
-  const [customEvents, setCustomEvents] = useState<Record<number, EventItem[]>>({})
+  const customEvents = appCustomEvents || {}
+  const setCustomEvents = appSetCustomEvents || (() => {})
+  const deletedKeys = appDeletedKeys || new Set()
+  const setDeletedKeys = appSetDeletedKeys || (() => {})
 
   // Add event modal state
   const [showAddModal, setShowAddModal] = useState(false)
@@ -204,6 +224,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
   const baseEvents = selectedIsFuture ? getFutureEvents(futureOffset) : getEventsForOffset(dayOffset)
   const activeEvents = [...baseEvents, ...(customEvents[selectedDayIndex] ?? [])]
     .sort((a, b) => a.time.localeCompare(b.time))
+    .filter(e => !deletedKeys.has(`${selectedDayIndex}-${e.id}`))
 
   // Date label for modal
   const modalDate = new Date(today)
@@ -232,16 +253,16 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
     const diffDays = Math.round((targetDate.getTime() - todayNoon.getTime()) / 86400000)
     const targetIndex = Math.max(0, Math.min(scrollDays.length - 1, todayIndex + diffDays))
 
-    const isFuture = targetIndex > todayIndex
+    const isFutureDay = targetIndex > todayIndex
     const ev: EventItem = {
       id: Date.now(),
       time: newStartTime,
       name: newTitle.trim(),
-      emojiIcon: isFuture ? null : CATEGORY_EMOJI[newCategory],
+      emojiIcon: null,
       vfc: null,
-      bg: isFuture ? '#EFEFEF' : CATEGORY_COLORS[newCategory].bg,
+      bg: '#EFEFEF',
       textColor: '#373D59',
-      locked: isFuture,
+      locked: isFutureDay,
       insight: '',
     }
     setCustomEvents(prev => ({
@@ -474,17 +495,24 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
             </div>
           )}
           <div className="flex flex-col gap-3">
-            {activeEvents.map((event) => {
-              const isExpanded = expandedIds.has(event.id)
+            {(() => {
+              const nowSpain = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }))
+              const currentHHMM = `${String(nowSpain.getHours()).padStart(2, '0')}:${String(nowSpain.getMinutes()).padStart(2, '0')}`
+              return activeEvents.map((event) => {
               const isFutureDay = selectedIsFuture
-              const isLocked = event.locked || isFutureDay
+              const isEventFuture = selectedIsToday && event.time > currentHHMM
+              const isLocked = event.locked || isFutureDay || isEventFuture
+              const overrideBg = emotionOverrides[`${selectedDayIndex}-${event.id}`]
+              const effectiveBg = overrideBg ?? event.bg
+              const isNoEmotionPast = !isLocked && effectiveBg === '#EFEFEF'
+              const isExpanded = isNoEmotionPast || expandedIds.has(event.id)
               return (
                 <button
                   key={event.id}
                   onClick={() => !isLocked && toggleEvent(event.id)}
                   className="w-full text-left card-press"
                   style={{
-                    background: event.bg,
+                    background: effectiveBg,
                     borderRadius: 15,
                     padding: isExpanded ? '20px 15px 25px' : '16px 15px',
                     opacity: isLocked ? 0.45 : 1,
@@ -496,38 +524,61 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
                       <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
-                      {event.emojiIcon && <span style={{ fontSize: 16 }}>{event.emojiIcon}</span>}
+                      {!isLocked && BG_TO_EMOTION_IMG[effectiveBg] && <img src={BG_TO_EMOTION_IMG[effectiveBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
                     </div>
-                    {event.vfc && (
+                    {event.vfc && !isLocked && (
                       <div className="flex-shrink-0 px-2 py-1 rounded-xl" style={{ background: '#FFFEFA' }}>
                         <span className="font-quicksand font-medium" style={{ fontSize: 10, color: event.vfcColor }}>{event.vfc}</span>
                       </div>
                     )}
+                    {isLocked && (
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setDeletedKeys(prev => new Set([...prev, `${selectedDayIndex}-${event.id}`]))
+                        }}
+                        className="flex-shrink-0 flex items-center justify-center"
+                        style={{ width: 32, height: 32, opacity: 0.6, cursor: 'pointer' }}
+                      >
+                        <Trash2 size={16} strokeWidth={2} color="#272724" />
+                      </div>
+                    )}
                   </div>
-                  {isExpanded && event.insight && !isFutureDay && (
+                  {isExpanded && !isFutureDay && (event.insight || isNoEmotionPast) && (
                     <div className="mt-3">
-                      <p className="font-quicksand font-medium text-left" style={{ fontSize: 12, color: '#272724', lineHeight: 1.5 }}>{event.insight}</p>
+                      {event.insight && <p className="font-quicksand font-medium text-left" style={{ fontSize: 12, color: '#272724', lineHeight: 1.5 }}>{event.insight}</p>}
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          onEventDetail?.(event)
+                          if (isNoEmotionPast) onRegisterEvent ? onRegisterEvent(event.name, selectedDayIndex, event.id) : onNavigate('emotion-step1')
+                          else onEventDetail?.(event)
                         }}
                         className="mt-4 w-full flex items-center justify-center rounded-xl"
                         style={{ background: '#272724', padding: '11px 32px' }}
                       >
-                        <span className="font-quicksand font-bold" style={{ fontSize: 12, color: '#FFFEFA' }}>Más información</span>
+                        <span className="font-quicksand font-bold" style={{ fontSize: 12, color: '#FFFEFA' }}>{isNoEmotionPast ? 'Registrar' : 'Más información'}</span>
                       </button>
                     </div>
                   )}
                 </button>
               )
-            })}
+            })
+            })()}
           </div>
         </div>
       </div>
 
       {/* Bottom Nav */}
-      <BottomNav onNavigate={onNavigate} onAddPress={() => onNavigate('emotion-step1')} onCalendarPress={() => onNavigate('home')} calendarActive={true} />
+      <BottomNav onNavigate={onNavigate} onAddPress={() => {
+        const nowSpain = new Date(new Date().toLocaleString('en-US', { timeZone: 'Europe/Madrid' }))
+        const hhmm = `${String(nowSpain.getHours()).padStart(2, '0')}:${String(nowSpain.getMinutes()).padStart(2, '0')}`
+        const todayEvts = [...getEventsForOffset(0), ...(customEvents[todayIndex] ?? [])]
+          .filter(e => !deletedKeys.has(`${todayIndex}-${e.id}`) && e.bg === '#EFEFEF' && e.time <= hhmm)
+          .sort((a, b) => b.time.localeCompare(a.time))
+        const recent = todayEvts[0]
+        if (onRegisterEvent) onRegisterEvent(recent?.name ?? '', recent ? todayIndex : undefined, recent?.id)
+        else onNavigate('emotion-step1')
+      }} onCalendarPress={() => onNavigate('home')} calendarActive={true} />
 
       {/* Add Event Modal */}
       {showAddModal && (

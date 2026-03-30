@@ -120,7 +120,7 @@ export default function ContextScreen({ onNavigate }: Props) {
       {/* Save button */}
       <div className="flex-shrink-0 px-5 pb-8">
         <button
-          onClick={() => onNavigate('tip')}
+          onClick={() => onNavigate('pre-calm')}
           className="w-full flex items-center justify-center"
           style={{
             height: 60,

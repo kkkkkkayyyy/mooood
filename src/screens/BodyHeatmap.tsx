@@ -37,7 +37,7 @@ export default function BodyHeatmap({ onNavigate }: Props) {
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
 
       {/* Header */}
-      <div className="flex-shrink-0 px-5 pt-5">
+      <div className="flex-shrink-0 px-5 pt-14">
         <div className="flex items-center justify-between">
           <button
             onClick={() => onNavigate('emotion-step2')}
