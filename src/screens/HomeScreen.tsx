@@ -4,6 +4,17 @@ import BottomNav from '../components/BottomNav'
 import BiometricHeader from '../components/BiometricHeader'
 import { Screen } from '../App'
 import { EventDetail } from './EventDetailScreen'
+import tensionImg from '../assets/Tension.png'
+import impulsoImg from '../assets/Impulso.png'
+import tristezaImg from '../assets/Tristeza.png'
+import calmaImg from '../assets/calma.png'
+
+const BG_TO_EMOTION_IMG: Record<string, string> = {
+  '#FFCEB6': tensionImg,
+  '#FFF1B7': impulsoImg,
+  '#BCE5C1': calmaImg,
+  '#E0E6FF': tristezaImg,
+}
 
 interface Props {
   onNavigate: (screen: Screen) => void
@@ -169,6 +180,7 @@ const CATEGORY_COLORS: Record<Category, { bg: string }> = {
 const CATEGORY_EMOJI: Record<Category, string | null> = {
   Trabajo: '💼', Social: '👥', Salud: '💪', Otro: null,
 }
+
 
 const DAY_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
@@ -496,7 +508,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
                       <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
-                      {event.emojiIcon && <span style={{ fontSize: 16 }}>{event.emojiIcon}</span>}
+                      {!isLocked && BG_TO_EMOTION_IMG[event.bg] && <img src={BG_TO_EMOTION_IMG[event.bg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
                     </div>
                     {event.vfc && (
                       <div className="flex-shrink-0 px-2 py-1 rounded-xl" style={{ background: '#FFFEFA' }}>
