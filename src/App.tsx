@@ -33,8 +33,9 @@ export type Screen =
   | 'event-detail'
   | 'emotion-step1'
   | 'emotion-step2'
-  | 'intensity'
   | 'body-heatmap'
+  | 'intensity'
+  | 'pre-calm'
   | 'context'
   | 'calm-method'
   | 'system-summary'
@@ -64,6 +65,10 @@ export default function App() {
           setScreen('login')
         }
       }, 1800)
+      return () => clearTimeout(t)
+    }
+    if (screen === 'pre-calm') {
+      const t = setTimeout(() => setScreen('calm-method'), 2800)
       return () => clearTimeout(t)
     }
   }, [screen])
@@ -145,10 +150,12 @@ export default function App() {
         return <EmotionStep1 onNavigate={navigate} />
       case 'emotion-step2':
         return <EmotionStep2 onNavigate={navigate} />
-      case 'intensity':
-        return <IntensityScreen onNavigate={navigate} />
       case 'body-heatmap':
         return <BodyHeatmap onNavigate={navigate} />
+      case 'intensity':
+        return <IntensityScreen onNavigate={navigate} />
+      case 'pre-calm':
+        return <TipScreen onNavigate={navigate} />
       case 'context':
         return <ContextScreen onNavigate={navigate} />
       case 'calm-method':

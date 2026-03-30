@@ -30,8 +30,8 @@ export default function TipScreen({ onNavigate }: Props) {
           ))}
         </div>
         <p
-          className="font-chewy uppercase tracking-widest"
-          style={{ fontSize: 18, color: '#9CADFF', letterSpacing: '0.15em' }}
+          className="font-chewy uppercase"
+          style={{ fontSize: 30, color: '#9CADFF', letterSpacing: '0.05em' }}
         >
           cargando...
         </p>

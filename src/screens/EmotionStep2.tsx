@@ -66,7 +66,7 @@ export default function EmotionStep2({ onNavigate }: Props) {
       </div>
 
       <div className='flex-shrink-0 px-5 pb-8'>
-        <button onClick={() => onNavigate('intensity')} className='w-full flex items-center justify-center' style={{ height: 60, background: '#272724', borderRadius: 42 }}>
+        <button onClick={() => onNavigate('body-heatmap')} className='w-full flex items-center justify-center' style={{ height: 60, background: '#272724', borderRadius: 42 }}>
           <span className='font-quicksand font-semibold' style={{ fontSize: 20, color: '#FFFEFA' }}>Continuar</span>
         </button>
       </div>
