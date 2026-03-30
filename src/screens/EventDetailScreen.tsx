@@ -2,6 +2,17 @@ import { useState } from 'react'
 import { ArrowLeft, Pencil, Check } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import { Screen } from '../App'
+import tensionImg from '../assets/Tension.png'
+import impulsoImg from '../assets/Impulso.png'
+import tristezaImg from '../assets/Tristeza.png'
+import calmaImg from '../assets/calma.png'
+
+const BG_TO_EMOTION_IMG: Record<string, string> = {
+  '#FFCEB6': tensionImg,
+  '#FFF1B7': impulsoImg,
+  '#BCE5C1': calmaImg,
+  '#E0E6FF': tristezaImg,
+}
 
 export interface EventDetail {
   id: number
@@ -113,8 +124,8 @@ export default function EventDetailScreen({ onNavigate, event }: Props) {
               </div>
             )}
           </div>
-          {event.emojiIcon && (
-            <span style={{ fontSize: 40 }}>{event.emojiIcon}</span>
+          {BG_TO_EMOTION_IMG[event.bg] && (
+            <img src={BG_TO_EMOTION_IMG[event.bg]} alt="" style={{ width: 48, height: 48, objectFit: 'contain' }} />
           )}
         </div>
 
