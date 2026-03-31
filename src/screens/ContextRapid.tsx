@@ -133,7 +133,6 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
             height: 52,
           }}
         >
-          <span style={{ fontSize: 20 }}>🕐</span>
           <input
             type='time'
             value={time}
