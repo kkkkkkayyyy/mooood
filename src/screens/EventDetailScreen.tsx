@@ -31,30 +31,79 @@ interface Props {
   event?: EventDetail
 }
 
-// Mini sparkline BPM chart
-function BpmSparkline({ color }: { color: string }) {
+// BPM chart with time (X) and BPM (Y) axes
+function BpmSparkline({ color, startTime }: { color: string; startTime: string }) {
   const points = [58, 62, 70, 85, 88, 78, 72, 68, 65, 70, 74, 80, 76, 70, 65]
-  const w = 220
-  const h = 48
-  const min = Math.min(...points)
-  const max = Math.max(...points)
-  const xs = points.map((_, i) => (i / (points.length - 1)) * w)
-  const ys = points.map(v => h - ((v - min) / (max - min)) * h)
+
+  const padLeft = 30
+  const padBottom = 18
+  const padTop = 4
+  const padRight = 4
+  const chartW = 200
+  const chartH = 72
+  const totalW = padLeft + chartW + padRight
+  const totalH = padTop + chartH + padBottom
+
+  const yMin = 50
+  const yMax = 100
+  const yTicks = [60, 70, 80, 90]
+
+  const toY = (v: number) => padTop + chartH - ((v - yMin) / (yMax - yMin)) * chartH
+  const toX = (i: number) => padLeft + (i / (points.length - 1)) * chartW
+
+  const xs = points.map((_, i) => toX(i))
+  const ys = points.map(v => toY(v))
   const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ')
-  const areaD = `${d} L${w},${h} L0,${h} Z`
+  const areaD = `${d} L${toX(points.length - 1)},${toY(yMin)} L${toX(0)},${toY(yMin)} Z`
+  const peakIdx = points.indexOf(Math.max(...points))
+
+  // Time labels: 5 ticks across 60-minute event
+  const [sh, sm] = startTime.split(':').map(Number)
+  const xTimeLabels = [0, 15, 30, 45, 60].map(mins => {
+    const total = sh * 60 + sm + mins
+    const h = Math.floor(total / 60) % 24
+    const m = total % 60
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  })
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} width="100%" height={h} style={{ overflow: 'visible' }}>
+    <svg viewBox={`0 0 ${totalW} ${totalH}`} width="100%" height={totalH} style={{ overflow: 'visible' }}>
       <defs>
         <linearGradient id="bpmGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.3" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
+
+      {/* Y grid lines + labels */}
+      {yTicks.map(v => (
+        <g key={v}>
+          <line x1={padLeft} y1={toY(v)} x2={padLeft + chartW} y2={toY(v)}
+            stroke="#E8E8E8" strokeWidth="1" strokeDasharray="3,3" />
+          <text x={padLeft - 4} y={toY(v) + 3.5} textAnchor="end"
+            style={{ fontSize: 8, fill: '#BBBBBB', fontFamily: 'Quicksand, sans-serif' }}>
+            {v}
+          </text>
+        </g>
+      ))}
+
+      {/* Chart fill + line */}
       <path d={areaD} fill="url(#bpmGrad)" />
       <path d={d} stroke={color} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+
       {/* Peak dot */}
-      <circle cx={xs[4].toFixed(1)} cy={ys[4].toFixed(1)} r="4" fill={color} />
+      <circle cx={xs[peakIdx].toFixed(1)} cy={ys[peakIdx].toFixed(1)} r="4" fill={color} />
+
+      {/* X time labels */}
+      {xTimeLabels.map((label, i) => (
+        <text key={i}
+          x={padLeft + (i / 4) * chartW}
+          y={totalH - 2}
+          textAnchor={i === 0 ? 'start' : i === 4 ? 'end' : 'middle'}
+          style={{ fontSize: 8, fill: '#BBBBBB', fontFamily: 'Quicksand, sans-serif' }}>
+          {label}
+        </text>
+      ))}
     </svg>
   )
 }
@@ -146,11 +195,7 @@ export default function EventDetailScreen({ onNavigate, event }: Props) {
               <span className="font-quicksand" style={{ fontSize: 11, color: '#9B9789' }}>bpm pico</span>
             </div>
           </div>
-          <BpmSparkline color={bpmColor} />
-          <div className="flex justify-between mt-2">
-            <span className="font-quicksand" style={{ fontSize: 10, color: '#C0C0C0' }}>Inicio</span>
-            <span className="font-quicksand" style={{ fontSize: 10, color: '#C0C0C0' }}>Fin</span>
-          </div>
+          <BpmSparkline color={bpmColor} startTime={event.time} />
         </div>
 
         {/* VFC detail */}

@@ -107,30 +107,30 @@ type EventItem = { id: number; time: string; name: string; emojiIcon: string | n
 
 const EVENTS_BY_OFFSET: Record<number, EventItem[]> = {
   0: [ // hoy
-    { id: 1, time: '07:00', name: 'Gym', emojiIcon: '🔥', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'El sensor detectó una frecuencia cardíaca elevada durante el entreno. ¡Buen trabajo!' },
-    { id: 2, time: '09:00', name: 'Reunión team', emojiIcon: '⚡', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Tu VFC alta indica que afrontaste la reunión con calma y concentración.' },
-    { id: 3, time: '09:00', name: 'Coffe time', emojiIcon: '😌', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Momento de desconexión detectado. Tu ritmo cardíaco bajó notablemente.' },
-    { id: 4, time: '15:00', name: 'Inicio Sprint', emojiIcon: null, vfc: 'VFC Alta', vfcColor: '#272724', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Entrada al sprint con buena activación. El sensor registró foco sostenido.' },
-    { id: 5, time: '19:00', name: 'Presentación', emojiIcon: '🔥', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'El sensor detectó un pico de tensión. Registraste que te has sentido nerviosa...' },
-    { id: 6, time: '21:00', name: 'Cena con amigos', emojiIcon: null, vfc: null, bg: '#E0E6FF', textColor: '#373D59', locked: true, insight: '' },
+    { id: 1, time: '07:00', name: 'Gym', emojiIcon: '💪', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'El sensor detectó una frecuencia cardíaca elevada durante el entreno. ¡Buen trabajo!' },
+    { id: 2, time: '09:00', name: 'Reunión team', emojiIcon: '💼', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Tu VFC alta indica que afrontaste la reunión con calma y concentración.' },
+    { id: 3, time: '09:00', name: 'Coffe time', emojiIcon: '👥', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Momento de desconexión detectado. Tu ritmo cardíaco bajó notablemente.' },
+    { id: 4, time: '15:00', name: 'Inicio Sprint', emojiIcon: '💼', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Entrada al sprint con buena activación. El sensor registró foco sostenido.' },
+    { id: 5, time: '19:00', name: 'Presentación', emojiIcon: '💼', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'El sensor detectó un pico de tensión. Registraste que te has sentido nerviosa...' },
+    { id: 6, time: '21:00', name: 'Cena con amigos', emojiIcon: '👥', vfc: null, bg: '#E0E6FF', textColor: '#373D59', locked: true, insight: '' },
   ],
   1: [ // ayer
-    { id: 1, time: '08:00', name: 'Meditación', emojiIcon: '🧘', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Tu VFC se disparó positivamente. La meditación matutina te dejó muy equilibrada.' },
-    { id: 2, time: '11:00', name: 'Café con Laura', emojiIcon: '☕', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Ritmo cardíaco tranquilo. Una conversación agradable y relajante.' },
-    { id: 3, time: '14:00', name: 'Revisión proyecto', emojiIcon: '💻', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Foco elevado detectado durante 2 horas. Gran sesión de trabajo profundo.' },
-    { id: 4, time: '20:00', name: 'Yoga', emojiIcon: '🌿', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Final del día con activación positiva. El yoga ayudó a cerrar bien la jornada.' },
+    { id: 1, time: '08:00', name: 'Meditación', emojiIcon: '💪', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Tu VFC se disparó positivamente. La meditación matutina te dejó muy equilibrada.' },
+    { id: 2, time: '11:00', name: 'Café con Laura', emojiIcon: '👥', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Ritmo cardíaco tranquilo. Una conversación agradable y relajante.' },
+    { id: 3, time: '14:00', name: 'Revisión proyecto', emojiIcon: '💼', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Foco elevado detectado durante 2 horas. Gran sesión de trabajo profundo.' },
+    { id: 4, time: '20:00', name: 'Yoga', emojiIcon: '💪', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Final del día con activación positiva. El yoga ayudó a cerrar bien la jornada.' },
   ],
   2: [
-    { id: 1, time: '09:00', name: 'Stand-up', emojiIcon: '⚡', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Reunión breve con buena energía. Sin picos de estrés detectados.' },
-    { id: 2, time: '12:00', name: 'Comida equipo', emojiIcon: '🍽️', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'Momento social relajado. Tu cuerpo respondió bien al descanso.' },
-    { id: 3, time: '16:00', name: 'Llamada cliente', emojiIcon: '📞', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Se detectó leve tensión al inicio. Se estabilizó en los primeros 5 minutos.' },
+    { id: 1, time: '09:00', name: 'Stand-up', emojiIcon: '💼', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Reunión breve con buena energía. Sin picos de estrés detectados.' },
+    { id: 2, time: '12:00', name: 'Comida equipo', emojiIcon: '👥', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'Momento social relajado. Tu cuerpo respondió bien al descanso.' },
+    { id: 3, time: '16:00', name: 'Llamada cliente', emojiIcon: '💼', vfc: 'VFC Baja', vfcColor: '#373D59', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Se detectó leve tensión al inicio. Se estabilizó en los primeros 5 minutos.' },
   ],
   3: [
-    { id: 1, time: '07:30', name: 'Running', emojiIcon: '🏃', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'Alta activación física. BPM máximo: 162. Recuperación en 8 minutos.' },
-    { id: 2, time: '10:00', name: 'Taller diseño', emojiIcon: '🎨', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Flujo creativo detectado. Tu VFC fue alta y estable durante toda la sesión.' },
-    { id: 3, time: '13:00', name: 'Pausa activa', emojiIcon: '🌤️', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Pequeño paseo que recargó tu energía para la tarde.' },
-    { id: 4, time: '17:00', name: 'Revisión OKRs', emojiIcon: null, vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Algo de presión detectada al revisar los objetivos. Normal en este contexto.' },
-    { id: 5, time: '21:00', name: 'Serie en casa', emojiIcon: '📺', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Noche tranquila. Tu cuerpo entró en modo de recuperación a las 22:00.' },
+    { id: 1, time: '07:30', name: 'Running', emojiIcon: '💪', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#FFCEB6', textColor: '#373D59', locked: false, insight: 'Alta activación física. BPM máximo: 162. Recuperación en 8 minutos.' },
+    { id: 2, time: '10:00', name: 'Taller diseño', emojiIcon: '💼', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#BCE5C1', textColor: '#373D59', locked: false, insight: 'Flujo creativo detectado. Tu VFC fue alta y estable durante toda la sesión.' },
+    { id: 3, time: '13:00', name: 'Pausa activa', emojiIcon: '💪', vfc: 'VFC Alta', vfcColor: '#272724', bg: '#FFF1B7', textColor: '#373D59', locked: false, insight: 'Pequeño paseo que recargó tu energía para la tarde.' },
+    { id: 4, time: '17:00', name: 'Revisión OKRs', emojiIcon: '💼', vfc: 'VFC Baja', vfcColor: '#F0A580', bg: '#EFEFEF', textColor: '#373D59', locked: false, insight: 'Algo de presión detectada al revisar los objetivos. Normal en este contexto.' },
+    { id: 5, time: '21:00', name: 'Serie en casa', emojiIcon: null, vfc: 'VFC Alta', vfcColor: '#272724', bg: '#E0E6FF', textColor: '#373D59', locked: false, insight: 'Noche tranquila. Tu cuerpo entró en modo de recuperación a las 22:00.' },
   ],
 }
 
@@ -527,6 +527,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
                       <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
                       {!isLocked && BG_TO_EMOTION_IMG[displayBg] && <img src={BG_TO_EMOTION_IMG[displayBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
+                      {isLocked && event.emojiIcon && <span style={{ fontSize: 20, flexShrink: 0 }}>{event.emojiIcon}</span>}
                     </div>
                     {event.vfc && !isLocked && (
                       <div className="flex-shrink-0 px-2 py-1 rounded-xl" style={{ background: '#FFFEFA' }}>
