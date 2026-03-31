@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { X } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar'
 import { Screen } from '../App'
+import type { EventItem } from './HomeScreen'
 
-interface Props { onNavigate: (screen: Screen) => void; contextEventName?: string; onSave?: (title: string, time: string) => void }
+interface Props { onNavigate: (screen: Screen) => void; contextEventName?: string; dayEvents?: EventItem[]; onSave?: (title: string, time: string) => void }
 
 const BASE_CHIPS = ['Trabajo', 'Mente', 'Familia', 'Hobby', 'Salud', 'Ejercicio', 'Otro']
 
@@ -12,12 +13,23 @@ function nowHHMM() {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export default function ContextRapid({ onNavigate, contextEventName, onSave }: Props) {
+function toMins(hhmm: string) {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+export default function ContextRapid({ onNavigate, contextEventName, dayEvents = [], onSave }: Props) {
   const chips = contextEventName ? [contextEventName, ...BASE_CHIPS] : BASE_CHIPS
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [note, setNote] = useState('')
   const [title, setTitle] = useState(contextEventName || '')
   const [time, setTime] = useState(nowHHMM)
+
+  // Events whose time is within ±60 min of the selected time
+  const nearbyEvents = useMemo(() => {
+    const selMins = toMins(time)
+    return dayEvents.filter(e => Math.abs(toMins(e.time) - selMins) <= 60)
+  }, [time, dayEvents])
 
   function toggle(chip: string) {
     setSelected(prev => {
@@ -62,7 +74,7 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
           value={title}
           onChange={e => setTitle(e.target.value)}
           placeholder='Título del evento...'
-          className='font-quicksand w-full mb-6'
+          className='font-quicksand w-full'
           style={{
             height: 52,
             background: '#F0F3FF',
@@ -74,6 +86,30 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
             outline: 'none',
           }}
         />
+
+        {/* Suggested events from calendar near selected time */}
+        {nearbyEvents.length > 0 && (
+          <div className='flex flex-wrap gap-2 mt-2 mb-4'>
+            {nearbyEvents.map(e => (
+              <button
+                key={e.id}
+                onClick={() => setTitle(e.name)}
+                className='font-quicksand'
+                style={{
+                  fontSize: 13,
+                  color: title === e.name ? '#FFFEFA' : '#272724',
+                  background: title === e.name ? '#272724' : '#E0E6FF',
+                  borderRadius: 20,
+                  padding: '5px 12px',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {e.time} · {e.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {nearbyEvents.length === 0 && <div className='mb-6' />}
 
         {/* Influido */}
         <p className='font-quicksand font-bold opacity-70 mb-4' style={{ fontSize: 18, color: '#272724' }}>

@@ -21,8 +21,9 @@ interface Props {
   userName?: string
   wearableConnected?: boolean
   onEventDetail?: (event: EventDetail) => void
-  onRegisterEvent?: (eventName: string, dayIndex?: number, eventId?: number) => void
+  onRegisterEvent?: (eventName: string, dayIndex?: number, eventId?: number, dayEvents?: EventItem[]) => void
   emotionOverrides?: Record<string, string>
+  nameOverrides?: Record<string, string>
   customEvents?: Record<number, EventItem[]>
   setCustomEvents?: Dispatch<SetStateAction<Record<number, EventItem[]>>>
   deletedKeys?: Set<string>
@@ -191,7 +192,7 @@ const CATEGORY_EMOJI: Record<Category, string | null> = {
 const DAY_FULL = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MONTH_SHORT = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
-export default function HomeScreen({ onNavigate, userName, wearableConnected = false, onEventDetail, onRegisterEvent, emotionOverrides = {}, customEvents: appCustomEvents, setCustomEvents: appSetCustomEvents, deletedKeys: appDeletedKeys, setDeletedKeys: appSetDeletedKeys }: Props) {
+export default function HomeScreen({ onNavigate, userName, wearableConnected = false, onEventDetail, onRegisterEvent, emotionOverrides = {}, nameOverrides = {}, customEvents: appCustomEvents, setCustomEvents: appSetCustomEvents, deletedKeys: appDeletedKeys, setDeletedKeys: appSetDeletedKeys }: Props) {
   const todayRef = useRef<HTMLDivElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
   const [period, setPeriod] = useState<Period>('Semana')
@@ -525,7 +526,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
-                      <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
+                      <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{nameOverrides[`${selectedDayIndex}-${event.id}`] ?? event.name}</span>
                       {!isLocked && BG_TO_EMOTION_IMG[displayBg] && <img src={BG_TO_EMOTION_IMG[displayBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
                     </div>
                     {event.vfc && !isLocked && (
@@ -552,7 +553,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (isNoEmotionPast) onRegisterEvent ? onRegisterEvent(event.name, selectedDayIndex, event.id) : onNavigate('emotion-step1')
+                          if (isNoEmotionPast) onRegisterEvent ? onRegisterEvent(event.name, selectedDayIndex, event.id, activeEvents) : onNavigate('emotion-step1')
                           else onEventDetail?.(event)
                         }}
                         className="mt-4 w-full flex items-center justify-center rounded-xl"
@@ -578,7 +579,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
           .filter(e => !deletedKeys.has(`${todayIndex}-${e.id}`) && e.bg === '#EFEFEF' && e.time <= hhmm)
           .sort((a, b) => b.time.localeCompare(a.time))
         const recent = todayEvts[0]
-        if (onRegisterEvent) onRegisterEvent(recent?.name ?? '', recent ? todayIndex : undefined, recent?.id)
+        if (onRegisterEvent) onRegisterEvent(recent?.name ?? '', recent ? todayIndex : undefined, recent?.id, todayEvts)
         else onNavigate('emotion-step1')
       }} onCalendarPress={() => onNavigate('home')} calendarActive={true} />
 
