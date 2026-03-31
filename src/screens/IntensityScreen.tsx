@@ -10,8 +10,10 @@ export default function IntensityScreen({ onNavigate }: Props) {
   const [intensity, setIntensity] = useState(3) // 1-5 scale
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Map intensity 1-5 to ring sizes
-  const ringSizes = [280, 230, 175, 120, 70]
+  // Map intensity 1-5 to ring sizes, scaled to fit screen
+  const maxRing = 280
+  const ringScale = Math.min((window.innerWidth - 40) / maxRing, 1)
+  const ringSizes = [280, 230, 175, 120, 70].map(s => Math.round(s * ringScale))
 
   function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
     if (!(e.buttons === 1 || e.type === 'pointermove' && e.pressure > 0)) return

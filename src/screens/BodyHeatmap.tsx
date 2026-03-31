@@ -77,7 +77,7 @@ export default function BodyHeatmap({ onNavigate }: Props) {
           <img
             src={personaImg}
             alt="figura humana"
-            style={{ display: 'block', width: 340, height: 'auto', opacity: 0.65 }}
+            style={{ display: 'block', width: '100%', maxWidth: 340, height: 'auto', opacity: 0.65 }}
           />
 
           {/* SVG tap zones overlay — positioned over img */}

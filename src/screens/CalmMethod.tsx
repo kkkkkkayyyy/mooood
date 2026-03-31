@@ -30,11 +30,16 @@ export default function CalmMethod({ onNavigate }: Props) {
   const innerScale = phase === 'inhala' ? 1.0 : phase === 'sostén' ? 1.0 : 0.55
   const innerDuration = phase === 'inhala' ? 4 : phase === 'sostén' ? 0.3 : 6
 
+  // Scale circles to fit available screen width (px-5 = 20px each side)
+  const baseSize = 340
+  const containerSize = Math.min(window.innerWidth - 40, baseSize)
+  const scale = containerSize / baseSize
+
   // Static outer rings — always blue, no animation
   const staticRings = [
-    { size: 330, opacity: 0.10 },
-    { size: 270, opacity: 0.16 },
-    { size: 215, opacity: 0.22 },
+    { size: Math.round(330 * scale), opacity: 0.10 },
+    { size: Math.round(270 * scale), opacity: 0.16 },
+    { size: Math.round(215 * scale), opacity: 0.22 },
   ]
 
   return (
@@ -75,7 +80,7 @@ export default function CalmMethod({ onNavigate }: Props) {
         </p>
 
         {/* Breathing circles */}
-        <div className="relative flex items-center justify-center my-8" style={{ width: 340, height: 340 }}>
+        <div className="relative flex items-center justify-center my-8" style={{ width: containerSize, height: containerSize }}>
           {staticRings.map((ring, i) => (
             <div
               key={i}
@@ -86,7 +91,7 @@ export default function CalmMethod({ onNavigate }: Props) {
           <div
             className="absolute rounded-full"
             style={{
-              width: 165, height: 165,
+              width: Math.round(165 * scale), height: Math.round(165 * scale),
               background: '#9CADFF', opacity: 0.9,
               transform: `scale(${innerScale})`,
               transition: `transform ${innerDuration}s ease-in-out`,
