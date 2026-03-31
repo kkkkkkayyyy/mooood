@@ -527,7 +527,6 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                       <span className="font-quicksand flex-shrink-0" style={{ fontSize: 12, color: event.textColor }}>{event.time}</span>
                       <span className="font-quicksand font-bold truncate" style={{ fontSize: 16, color: event.textColor }}>{event.name}</span>
                       {!isLocked && BG_TO_EMOTION_IMG[displayBg] && <img src={BG_TO_EMOTION_IMG[displayBg]} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />}
-                      {isLocked && event.emojiIcon && <span style={{ fontSize: 20, flexShrink: 0 }}>{event.emojiIcon}</span>}
                     </div>
                     {event.vfc && !isLocked && (
                       <div className="flex-shrink-0 px-2 py-1 rounded-xl" style={{ background: '#FFFEFA' }}>
