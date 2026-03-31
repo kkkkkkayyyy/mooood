@@ -3,6 +3,7 @@ import PhoneFrame from './components/PhoneFrame'
 import LoadingScreen from './screens/LoadingScreen'
 import LoginScreen from './screens/LoginScreen'
 import RegisterScreen from './screens/RegisterScreen'
+import type { EventItem } from './screens/HomeScreen'
 import HomeScreen from './screens/HomeScreen'
 import EmotionStep1 from './screens/EmotionStep1'
 import EmotionStep2 from './screens/EmotionStep2'
@@ -20,7 +21,7 @@ import OnboardingScreen from './screens/OnboardingScreen'
 import WearableSearchScreen from './screens/WearableSearchScreen'
 import TipScreen from './screens/TipScreen'
 import ContextRapid from './screens/ContextRapid'
-// import { supabase } from './lib/supabase' // bypassed — no credentials
+import { supabase } from './lib/supabase'
 
 export type Screen =
   | 'loading'
@@ -55,20 +56,38 @@ export default function App() {
   const [contextEventRef, setContextEventRef] = useState<{ dayIndex: number; eventId: number } | null>(null)
   const [selectedEmotionBg, setSelectedEmotionBg] = useState<string>('')
   const [emotionOverrides, setEmotionOverrides] = useState<Record<string, string>>({})
-  const [customEvents, setCustomEvents] = useState<Record<number, object[]>>({})
+  const [customEvents, setCustomEvents] = useState<Record<number, EventItem[]>>({})
   const [deletedKeys, setDeletedKeys] = useState<Set<string>>(new Set())
 
   useEffect(() => {
+    // Check existing session on load
     if (screen === 'loading') {
-      // Skip auth — go straight to home
-      const t = setTimeout(() => setScreen('home'), 1800)
-      return () => clearTimeout(t)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          setUserName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '')
+          setUserEmail(session.user.email || '')
+          setScreen('home')
+        } else {
+          setScreen('login')
+        }
+      })
     }
     if (screen === 'pre-calm') {
       const t = setTimeout(() => setScreen('calm-method'), 2800)
       return () => clearTimeout(t)
     }
   }, [screen])
+
+  // Listen for auth state changes (e.g. email confirmation redirect)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUserName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '')
+        setUserEmail(session.user.email || '')
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   const navigate = (s: Screen) => setScreen(s)
 

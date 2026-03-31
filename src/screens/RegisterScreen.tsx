@@ -24,7 +24,10 @@ export default function RegisterScreen({ onNavigate, onAuthSuccess }: Props) {
     const { error: err } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: name } },
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: window.location.origin,
+      },
     })
     setLoading(false)
     if (err) { setError(err.message); return }
@@ -44,7 +47,6 @@ export default function RegisterScreen({ onNavigate, onAuthSuccess }: Props) {
         </svg>
       </div>
       <div className="text-center mb-8">
-        <div style={{ fontSize: 48, marginBottom: 16 }}>📩</div>
         <h2 className="font-chewy mb-2" style={{ fontSize: 24, color: '#272724' }}>Revisa tu email</h2>
         <p className="font-quicksand" style={{ fontSize: 14, color: '#9B9789', lineHeight: 1.6 }}>
           Te hemos enviado un enlace de confirmación a<br />
