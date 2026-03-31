@@ -65,7 +65,7 @@ export default function RegisterScreen({ onNavigate, onAuthSuccess }: Props) {
   )
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 py-10" style={{ background: '#FFFFFF' }}>
+    <div className="flex-1 flex flex-col items-center overflow-y-auto scroll-hide px-6 py-10" style={{ background: '#FFFFFF' }}>
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
         <span className="font-chewy" style={{ fontSize: 48, color: '#9CADFF', lineHeight: 1 }}>Mooood</span>
