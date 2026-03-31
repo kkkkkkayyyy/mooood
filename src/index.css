@@ -35,6 +35,16 @@ html, body, #root {
   background: #E8EAF0;
 }
 
+/* Safe area support for devices with notch/dynamic island */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 body {
   font-family: 'Quicksand', sans-serif;
   -webkit-font-smoothing: antialiased;

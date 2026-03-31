@@ -64,6 +64,9 @@ export default {
       backdropBlur: {
         xs: '2px',
       },
+      boxShadow: {
+        phone: '0 0 0 2px #1a1a1a, 0 0 0 6px #2c2c2c, 0 30px 80px rgba(0,0,0,0.5)',
+      },
     },
   },
   plugins: [],

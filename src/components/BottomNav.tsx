@@ -18,8 +18,9 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
       <div className="absolute inset-0 overflow-visible pointer-events-none">
         <svg
           viewBox="0 0 393 80"
-          width="393"
+          width="100%"
           height="80"
+          preserveAspectRatio="none"
           className="absolute bottom-0 left-0"
           style={{ overflow: 'visible' }}
         >
