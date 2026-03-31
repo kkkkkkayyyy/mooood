@@ -58,6 +58,8 @@ export default function App() {
   const [emotionOverrides, setEmotionOverrides] = useState<Record<string, string>>({})
   const [customEvents, setCustomEvents] = useState<Record<number, EventItem[]>>({})
   const [deletedKeys, setDeletedKeys] = useState<Set<string>>(new Set())
+  const [contextDayEvents, setContextDayEvents] = useState<EventItem[]>([])
+  const [nameOverrides, setNameOverrides] = useState<Record<string, string>>({})
 
   useEffect(() => {
     // Check existing session on load
@@ -91,19 +93,21 @@ export default function App() {
 
   const navigate = (s: Screen) => setScreen(s)
 
-  const onRegisterEvent = (eventName: string, dayIndex?: number, eventId?: number) => {
+  const onRegisterEvent = (eventName: string, dayIndex?: number, eventId?: number, dayEvents: EventItem[] = []) => {
     setContextEventName(eventName)
     setContextEventRef(dayIndex !== undefined && eventId !== undefined ? { dayIndex, eventId } : null)
+    setContextDayEvents(dayEvents)
     setSelectedEmotionBg('')
     setScreen('emotion-step1')
   }
 
   const onSelectEmotion = (bg: string) => setSelectedEmotionBg(bg)
 
-  const onCompleteRegistration = () => {
-    if (contextEventRef && selectedEmotionBg) {
+  const onCompleteRegistration = (title?: string, _time?: string) => {
+    if (contextEventRef) {
       const key = `${contextEventRef.dayIndex}-${contextEventRef.eventId}`
-      setEmotionOverrides(prev => ({ ...prev, [key]: selectedEmotionBg }))
+      if (selectedEmotionBg) setEmotionOverrides(prev => ({ ...prev, [key]: selectedEmotionBg }))
+      if (title && title.trim()) setNameOverrides(prev => ({ ...prev, [key]: title.trim() }))
     }
     setScreen('system-summary')
   }
@@ -156,7 +160,7 @@ export default function App() {
       case 'wearable-search':
         return <WearableSearchScreen onNavigate={navigate} returnTo={wearableReturnTo} onConnected={onConnectWearable} />
       case 'home':
-        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
+        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} nameOverrides={nameOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
       case 'event-detail':
         return <EventDetailScreen onNavigate={navigate} event={selectedEvent} />
       case 'profile':
@@ -178,13 +182,13 @@ export default function App() {
       case 'calm-method':
         return <CalmMethod onNavigate={navigate} />
       case 'context-rapid':
-        return <ContextRapid onNavigate={navigate} contextEventName={contextEventName} onSave={onCompleteRegistration} />
+        return <ContextRapid onNavigate={navigate} contextEventName={contextEventName} dayEvents={contextDayEvents} onSave={onCompleteRegistration} />
       case 'system-summary':
         return <SystemSummary onNavigate={navigate} />
       case 'completion':
-        return <CompletionScreen onNavigate={navigate} />
+        return <CompletionScreen onNavigate={navigate} userName={userName} />
       default:
-        return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
+        return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} nameOverrides={nameOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
     }
   }
 

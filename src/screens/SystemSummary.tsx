@@ -1,4 +1,5 @@
 import { Zap, Activity, TrendingUp } from 'lucide-react'
+import { useMemo } from 'react'
 import { Screen } from '../App'
 
 interface Props {
@@ -33,6 +34,11 @@ const insights = [
 ]
 
 export default function SystemSummary({ onNavigate }: Props) {
+  const now = useMemo(() => {
+    const d = new Date()
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  }, [])
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
       {/* Header */}
@@ -106,7 +112,7 @@ export default function SystemSummary({ onNavigate }: Props) {
             className="font-quicksand text-center"
             style={{ fontSize: 12, color: '#656359', lineHeight: 1.6, opacity: 0.8 }}
           >
-            Datos biométricos registrados a las 14:23 · BPM 72 · HRV 65ms
+            Datos biométricos registrados a las {now} · BPM 72 · HRV 65ms
           </p>
         </div>
       </div>

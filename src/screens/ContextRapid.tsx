@@ -1,16 +1,35 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { X } from 'lucide-react'
 import ProgressBar from '../components/ProgressBar'
 import { Screen } from '../App'
+import type { EventItem } from './HomeScreen'
 
-interface Props { onNavigate: (screen: Screen) => void; contextEventName?: string; onSave?: () => void }
+interface Props { onNavigate: (screen: Screen) => void; contextEventName?: string; dayEvents?: EventItem[]; onSave?: (title: string, time: string) => void }
 
 const BASE_CHIPS = ['Trabajo', 'Mente', 'Familia', 'Hobby', 'Salud', 'Ejercicio', 'Otro']
 
-export default function ContextRapid({ onNavigate, contextEventName, onSave }: Props) {
+function nowHHMM() {
+  const d = new Date()
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function toMins(hhmm: string) {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+export default function ContextRapid({ onNavigate, contextEventName, dayEvents = [], onSave }: Props) {
   const chips = contextEventName ? [contextEventName, ...BASE_CHIPS] : BASE_CHIPS
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [note, setNote] = useState('')
+  const [title, setTitle] = useState(contextEventName || '')
+  const [time, setTime] = useState(nowHHMM)
+
+  // Events whose time is within ±60 min of the selected time
+  const nearbyEvents = useMemo(() => {
+    const selMins = toMins(time)
+    return dayEvents.filter(e => Math.abs(toMins(e.time) - selMins) <= 60)
+  }, [time, dayEvents])
 
   function toggle(chip: string) {
     setSelected(prev => {
@@ -46,6 +65,52 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
 
       {/* Scrollable content */}
       <div className='flex-1 overflow-y-auto scroll-hide px-5 pb-4'>
+        {/* Título del evento */}
+        <p className='font-quicksand font-bold opacity-70 mb-2' style={{ fontSize: 18, color: '#272724' }}>
+          ¿Qué estabas haciendo?
+        </p>
+        <input
+          type='text'
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder='Título del evento...'
+          className='font-quicksand w-full'
+          style={{
+            height: 52,
+            background: '#F0F3FF',
+            borderRadius: 12,
+            padding: '0 16px',
+            fontSize: 16,
+            color: '#272724',
+            border: 'none',
+            outline: 'none',
+          }}
+        />
+
+        {/* Suggested events from calendar near selected time */}
+        {nearbyEvents.length > 0 && (
+          <div className='flex flex-wrap gap-2 mt-2 mb-4'>
+            {nearbyEvents.map(e => (
+              <button
+                key={e.id}
+                onClick={() => setTitle(e.name)}
+                className='font-quicksand'
+                style={{
+                  fontSize: 13,
+                  color: title === e.name ? '#FFFEFA' : '#272724',
+                  background: title === e.name ? '#272724' : '#E0E6FF',
+                  borderRadius: 20,
+                  padding: '5px 12px',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {e.time} · {e.name}
+              </button>
+            ))}
+          </div>
+        )}
+        {nearbyEvents.length === 0 && <div className='mb-6' />}
+
         {/* Influido */}
         <p className='font-quicksand font-bold opacity-70 mb-4' style={{ fontSize: 18, color: '#272724' }}>
           ¿Qué ha influido?
@@ -78,7 +143,7 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
           value={note}
           onChange={e => setNote(e.target.value)}
           placeholder='Escribe que ha pasado...'
-          className='font-quicksand w-full resize-none'
+          className='font-quicksand w-full resize-none mb-6'
           style={{
             height: 120,
             background: '#F0F3FF',
@@ -90,12 +155,41 @@ export default function ContextRapid({ onNavigate, contextEventName, onSave }: P
             outline: 'none',
           }}
         />
+
+        {/* Hora de registro */}
+        <p className='font-quicksand font-bold opacity-70 mb-2' style={{ fontSize: 18, color: '#272724' }}>
+          Hora del registro
+        </p>
+        <div
+          className='flex items-center gap-3 mb-4'
+          style={{
+            background: '#F0F3FF',
+            borderRadius: 12,
+            padding: '0 16px',
+            height: 52,
+          }}
+        >
+          <input
+            type='time'
+            value={time}
+            onChange={e => setTime(e.target.value)}
+            className='font-quicksand flex-1'
+            style={{
+              fontSize: 18,
+              color: '#272724',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              fontWeight: 600,
+            }}
+          />
+        </div>
       </div>
 
       {/* Button */}
       <div className='flex-shrink-0 px-5 pb-8'>
         <button
-          onClick={() => onSave ? onSave() : onNavigate('system-summary')}
+          onClick={() => onSave ? onSave(title, time) : onNavigate('system-summary')}
           className='w-full flex items-center justify-center'
           style={{ height: 60, background: '#272724', borderRadius: 42 }}
         >
