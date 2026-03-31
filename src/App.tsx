@@ -189,7 +189,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#C5C9D4] flex items-center justify-center py-8">
+    <div className="w-full md:min-h-screen md:bg-[#C5C9D4] md:flex md:items-center md:justify-center md:py-8">
       <PhoneFrame>
         {renderScreen()}
       </PhoneFrame>
