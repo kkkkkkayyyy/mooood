@@ -37,7 +37,98 @@ const METHODS = [
   { id: 'grounding',    title: 'Técnica 5-4-3-2-1',    subtitle: 'Ancla tus sentidos al presente',      color: '#F0A580' },
 ]
 
-// BreathingCircle — shared between methods 1 & 2
+// BoxBreathing — small square travels along each side of the track
+function BoxBreathing({ color }: { color: string }) {
+  const size = Math.min(window.innerWidth - 160, 160)
+  const dot = 28
+
+  // 4 corners centered ON the border line (offset by -dot/2)
+  const half = dot / 2
+  const corners = [
+    { x: -half,        y: -half        },  // top-left
+    { x: size - half,  y: -half        },  // top-right
+    { x: size - half,  y: size - half  },  // bottom-right
+    { x: -half,        y: size - half  },  // bottom-left
+  ]
+
+  const [phaseIdx, setPhaseIdx] = useState(0)
+  const [dotPos, setDotPos] = useState({ x: 0, y: 0, dur: 0 })
+
+  // On mount: snap to corner 0 instantly, then start animating
+  useEffect(() => {
+    setPhaseIdx(0)
+    setDotPos({ x: 0, y: 0, dur: 0 })
+  }, [])
+
+  // When phase changes: animate dot toward next corner
+  useEffect(() => {
+    const target = corners[(phaseIdx + 1) % 4]
+    const dur = PHASES_BOX[phaseIdx].duration / 1000
+    const tid = setTimeout(() => setDotPos({ ...target, dur }), 30)
+    return () => clearTimeout(tid)
+  }, [phaseIdx])
+
+  // Advance to next phase
+  useEffect(() => {
+    const t = setTimeout(() => setPhaseIdx(i => (i + 1) % PHASES_BOX.length), PHASES_BOX[phaseIdx].duration)
+    return () => clearTimeout(t)
+  }, [phaseIdx])
+
+  const { label, sublabel } = PHASES_BOX[phaseIdx]
+  const sideLabels = [
+    { text: 'Inhala', style: { top: -26, left: '50%', transform: 'translateX(-50%)' } },
+    { text: 'Sostén', style: { right: -56, top: '50%', transform: 'translateY(-50%)' } },
+    { text: 'Exhala', style: { bottom: -26, left: '50%', transform: 'translateX(-50%)' } },
+    { text: 'Espera', style: { left: -56, top: '50%', transform: 'translateY(-50%)' } },
+  ]
+
+  return (
+    <div className="flex flex-col items-center justify-center my-10 gap-8">
+      {/* Track square */}
+      <div className="relative" style={{ width: size, height: size, overflow: 'visible' }}>
+        {/* Outer border */}
+        <div className="absolute inset-0" style={{ border: `2.5px solid ${color}55`, borderRadius: 20 }} />
+
+        {/* Phase name centered inside the square */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="font-chewy" style={{ fontSize: 32, color: '#272724', lineHeight: 1 }}>{label}</span>
+          <p className="font-quicksand mt-1" style={{ fontSize: 13, color: '#9B9789' }}>{sublabel}</p>
+        </div>
+
+        {/* Traveling dot */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: dot, height: dot,
+          borderRadius: 8,
+          background: color,
+          boxShadow: `0 0 16px ${color}99`,
+          transform: `translate(${dotPos.x}px, ${dotPos.y}px)`,
+          transition: `transform ${dotPos.dur}s linear`,
+        }} />
+
+        {/* Side labels */}
+        {sideLabels.map((s, i) => (
+          <span
+            key={i}
+            className="absolute font-quicksand font-semibold whitespace-nowrap"
+            style={{
+              ...s.style,
+              fontSize: 12,
+              color: phaseIdx === i ? color : '#C8C8C8',
+              transition: 'color 0.4s',
+            }}
+          >
+            {s.text}
+          </span>
+        ))}
+      </div>
+
+    </div>
+  )
+}
+
+// BreathingCircle — only for method 1
 function BreathingCircle({ phases, color }: { phases: typeof PHASES_426; color: string }) {
   const [phaseIdx, setPhaseIdx] = useState(0)
 
@@ -104,7 +195,6 @@ function GroundingMethod({ color }: { color: string }) {
 
       {/* Card */}
       <div className="w-full rounded-3xl flex flex-col items-center justify-center px-6 py-10 gap-4" style={{ background: color + '22', border: `2px solid ${color}44`, minHeight: 200 }}>
-        <span style={{ fontSize: 56 }}>{current.icon}</span>
         <div className="text-center">
           <span className="font-chewy" style={{ fontSize: 64, color, lineHeight: 1 }}>{current.num}</span>
           <p className="font-quicksand font-semibold mt-2" style={{ fontSize: 16, color: '#272724', lineHeight: 1.4 }}>
@@ -165,13 +255,6 @@ export default function CalmMethod({ onNavigate }: Props) {
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto scroll-hide flex flex-col items-center px-5 pb-8">
 
-        {/* Method indicator */}
-        <div className="flex gap-1.5 mt-4 mb-2">
-          {METHODS.map((_, i) => (
-            <div key={i} style={{ width: i === methodIdx ? 20 : 6, height: 6, borderRadius: 3, background: i === methodIdx ? method.color : '#D0D0D0', transition: 'all 0.3s' }} />
-          ))}
-        </div>
-
         <h1 className="font-chewy text-center w-full mt-1" style={{ fontSize: 28, color: '#272724', lineHeight: 1.2 }}>
           {method.title}
         </h1>
@@ -182,7 +265,7 @@ export default function CalmMethod({ onNavigate }: Props) {
         {/* Method content */}
         <div className="w-full flex flex-col items-center flex-1">
           {method.id === 'breathing426' && <BreathingCircle phases={PHASES_426} color={method.color} />}
-          {method.id === 'box'          && <BreathingCircle phases={PHASES_BOX}  color={method.color} />}
+          {method.id === 'box'          && <BoxBreathing color={method.color} />}
           {method.id === 'grounding'    && <GroundingMethod color={method.color} />}
         </div>
 

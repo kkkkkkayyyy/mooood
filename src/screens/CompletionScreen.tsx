@@ -2,6 +2,7 @@ import { Screen } from '../App'
 
 interface Props {
   onNavigate: (screen: Screen) => void
+  userName?: string
 }
 
 function CalmBlob() {
@@ -35,7 +36,7 @@ function CalmBlob() {
   )
 }
 
-export default function CompletionScreen({ onNavigate }: Props) {
+export default function CompletionScreen({ onNavigate, userName }: Props) {
   return (
     <div
       className="flex-1 flex flex-col items-center justify-between overflow-hidden px-5"
@@ -55,7 +56,7 @@ export default function CompletionScreen({ onNavigate }: Props) {
           className="font-chewy text-center"
           style={{ fontSize: 38, color: '#272724', lineHeight: 1.2, marginBottom: 12 }}
         >
-          Buen trabajo, Sofía
+          Buen trabajo, {userName || 'Sofía'}
         </h1>
 
         <p
@@ -137,17 +138,6 @@ export default function CompletionScreen({ onNavigate }: Props) {
             style={{ fontSize: 20, color: '#FFFEFA' }}
           >
             Volver al calendario
-          </span>
-        </button>
-        <button
-          onClick={() => onNavigate('home')}
-          className="w-full flex items-center justify-center"
-        >
-          <span
-            className="font-quicksand"
-            style={{ fontSize: 14, color: '#272724', opacity: 0.5 }}
-          >
-            Ver mi historial de hoy
           </span>
         </button>
       </div>

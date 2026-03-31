@@ -100,7 +100,7 @@ export default function App() {
 
   const onSelectEmotion = (bg: string) => setSelectedEmotionBg(bg)
 
-  const onCompleteRegistration = () => {
+  const onCompleteRegistration = (_title?: string, _time?: string) => {
     if (contextEventRef && selectedEmotionBg) {
       const key = `${contextEventRef.dayIndex}-${contextEventRef.eventId}`
       setEmotionOverrides(prev => ({ ...prev, [key]: selectedEmotionBg }))
@@ -182,7 +182,7 @@ export default function App() {
       case 'system-summary':
         return <SystemSummary onNavigate={navigate} />
       case 'completion':
-        return <CompletionScreen onNavigate={navigate} />
+        return <CompletionScreen onNavigate={navigate} userName={userName} />
       default:
         return <HomeScreen onNavigate={navigate} wearableConnected={wearableConnected} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
     }
