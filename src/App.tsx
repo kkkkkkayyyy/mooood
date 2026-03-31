@@ -3,6 +3,7 @@ import PhoneFrame from './components/PhoneFrame'
 import LoadingScreen from './screens/LoadingScreen'
 import LoginScreen from './screens/LoginScreen'
 import RegisterScreen from './screens/RegisterScreen'
+import type { EventItem } from './screens/HomeScreen'
 import HomeScreen from './screens/HomeScreen'
 import EmotionStep1 from './screens/EmotionStep1'
 import EmotionStep2 from './screens/EmotionStep2'
@@ -55,7 +56,7 @@ export default function App() {
   const [contextEventRef, setContextEventRef] = useState<{ dayIndex: number; eventId: number } | null>(null)
   const [selectedEmotionBg, setSelectedEmotionBg] = useState<string>('')
   const [emotionOverrides, setEmotionOverrides] = useState<Record<string, string>>({})
-  const [customEvents, setCustomEvents] = useState<Record<number, object[]>>({})
+  const [customEvents, setCustomEvents] = useState<Record<number, EventItem[]>>({})
   const [deletedKeys, setDeletedKeys] = useState<Set<string>>(new Set())
 
   useEffect(() => {

@@ -103,7 +103,7 @@ function buildMonthGrid(year: number, month: number) {
 const scrollDays = buildScrollDays()
 const todayIndex = scrollDays.findIndex(d => d.isToday)
 
-type EventItem = { id: number; time: string; name: string; emojiIcon: string | null; vfc: string | null; vfcColor?: string; bg: string; textColor: string; locked: boolean; insight: string }
+export type EventItem = { id: number; time: string; name: string; emojiIcon: string | null; vfc: string | null; vfcColor?: string; bg: string; textColor: string; locked: boolean; insight: string }
 
 const EVENTS_BY_OFFSET: Record<number, EventItem[]> = {
   0: [ // hoy
