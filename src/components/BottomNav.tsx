@@ -13,7 +13,7 @@ interface Props {
 
 export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, calendarActive }: Props) {
   return (
-    <div className="relative flex-shrink-0" style={{ height: 80 }}>
+    <div className="relative flex-shrink-0" style={{ height: 'calc(80px + env(safe-area-inset-bottom, 0px))' }}>
       {/* SVG curve for the top of the nav */}
       <div className="absolute inset-0 overflow-visible pointer-events-none">
         <svg
@@ -37,7 +37,7 @@ export default function BottomNav({ onNavigate, onAddPress, onCalendarPress, cal
       <div
         className="absolute bottom-0 left-0 right-0"
         style={{
-          height: 57,
+          height: 'calc(57px + env(safe-area-inset-bottom, 0px))',
           background: '#272724',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 30,
