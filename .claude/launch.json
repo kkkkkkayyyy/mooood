@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "nexus-app",
-      "runtimeExecutable": "/Users/patriciateixeiraizuzquiza/.nvm/versions/node/v24.13.1/bin/node",
-      "runtimeArgs": ["/Users/patriciateixeiraizuzquiza/Downloads/mooood-Patri/node_modules/.bin/vite", "--host"],
-      "port": 5173
+      "name": "mooood-loving-agnesi",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5174"],
+      "port": 5174
     }
   ]
 }
