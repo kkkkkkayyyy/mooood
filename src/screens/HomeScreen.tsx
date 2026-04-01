@@ -76,7 +76,12 @@ function buildMonthGrid(year: number, month: number) {
   // Leading empty cells (prev month)
   const prevMonthDays = new Date(year, month, 0).getDate()
   for (let i = startCol - 1; i >= 0; i--) {
-    cells.push({ label: String(prevMonthDays - i), bg: '#F0F3FF', text: '#A0A0A0', faded: true })
+    const day = prevMonthDays - i
+    const date = new Date(year, month - 1, day)
+    const isPastDate = date < today
+    const offset = Math.round((today.getTime() - date.getTime()) / 86400000)
+    const bg = isPastDate ? PAST_COLORS[offset % PAST_COLORS.length] : '#F0F3FF'
+    cells.push({ label: String(day), bg, text: '#272724', faded: true })
   }
 
   // Current month days
@@ -458,6 +463,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                       color: cell.faded ? '#A0A0A0' : cell.text,
                       fontSize: 13,
                       margin: '0 auto',
+                      opacity: cell.faded ? 0.45 : 1,
                     }}
                   >
                     {cell.label}
