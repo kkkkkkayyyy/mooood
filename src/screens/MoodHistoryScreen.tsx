@@ -53,8 +53,8 @@ const MOOD_COLORS: Record<string, { bg: string; text: string }> = {
   '2-27': { bg: '#A4DDAB', text: '#272724' },
   '2-28': { bg: '#FDE478', text: '#272724' },
   '2-29': { bg: '#9CC4FF', text: '#272724' },
-  '2-30': { bg: '#F0A580', text: '#272724' },
-  '2-31': { bg: '#A4DDAB', text: '#272724' },
+  '2-30': { bg: '#9CC4FF', text: '#272724' },
+  '2-31': { bg: '#FDE478', text: '#272724' },
 }
 
 const FUTURE_CELL = { bg: '#E0E6FF', text: '#272724' }
