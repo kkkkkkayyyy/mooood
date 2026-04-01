@@ -9,96 +9,114 @@ interface Props {
 
 type Period = 'Semana' | 'Mes'
 
-// March 2026 starts on Sunday (col 7 in L-M-X-J-V-S-D grid)
-// Day 1 = Sunday = col 7, so offset = 6 empty cells before day 1
-// Mood colors for days 1–9 (from Figma); 10 = today; 11+ = future (primary-300)
-const MOOD_COLORS: Record<number, { bg: string; text: string }> = {
-  // Feb overflow days (shown as future)
-  23: { bg: '#A4DDAB', text: '#272724' }, // calma-300
-  24: { bg: '#F0A580', text: '#272724' }, // tension-300
-  25: { bg: '#FDE478', text: '#272724' }, // impulso-300
-  26: { bg: '#9CC4FF', text: '#272724' }, // tristeza-200
-  27: { bg: '#F0A580', text: '#272724' }, // tension-300
-  28: { bg: '#A4DDAB', text: '#272724' }, // calma-300
+const YEAR = 2026
+const NOW = new Date(YEAR, 3, 1) // April 1, 2026 (current date in app)
+const THIS_MONTH = NOW.getMonth()
+const THIS_DAY = NOW.getDate()
+
+// Mood colors keyed by 'month-day' (month 0-indexed: 0=Jan, 1=Feb, 2=Mar, 3=Apr...)
+const MOOD_COLORS: Record<string, { bg: string; text: string }> = {
+  // February
+  '1-23': { bg: '#A4DDAB', text: '#272724' },
+  '1-24': { bg: '#F0A580', text: '#272724' },
+  '1-25': { bg: '#FDE478', text: '#272724' },
+  '1-26': { bg: '#9CC4FF', text: '#272724' },
+  '1-27': { bg: '#F0A580', text: '#272724' },
+  '1-28': { bg: '#A4DDAB', text: '#272724' },
   // March
-  1:  { bg: '#A4DDAB', text: '#272724' }, // calma-300
-  2:  { bg: '#9CC4FF', text: '#272724' }, // tristeza-200
-  3:  { bg: '#9CC4FF', text: '#272724' }, // tristeza-200
-  4:  { bg: '#F0A580', text: '#272724' }, // tension-300
-  5:  { bg: '#A4DDAB', text: '#272724' }, // calma-300
-  6:  { bg: '#FDE478', text: '#272724' }, // impulso-300
-  7:  { bg: '#FDE478', text: '#272724' }, // impulso-300
-  8:  { bg: '#A4DDAB', text: '#272724' }, // calma-300
-  9:  { bg: '#A4DDAB', text: '#272724' }, // calma-300
-  10: { bg: '#272724', text: '#FFFEFA' }, // today — dark
+  '2-1':  { bg: '#A4DDAB', text: '#272724' },
+  '2-2':  { bg: '#9CC4FF', text: '#272724' },
+  '2-3':  { bg: '#9CC4FF', text: '#272724' },
+  '2-4':  { bg: '#F0A580', text: '#272724' },
+  '2-5':  { bg: '#A4DDAB', text: '#272724' },
+  '2-6':  { bg: '#FDE478', text: '#272724' },
+  '2-7':  { bg: '#FDE478', text: '#272724' },
+  '2-8':  { bg: '#A4DDAB', text: '#272724' },
+  '2-9':  { bg: '#A4DDAB', text: '#272724' },
+  '2-10': { bg: '#272724', text: '#FFFEFA' },
+  '2-11': { bg: '#F0A580', text: '#272724' },
+  '2-12': { bg: '#A4DDAB', text: '#272724' },
+  '2-13': { bg: '#FDE478', text: '#272724' },
+  '2-14': { bg: '#9CC4FF', text: '#272724' },
+  '2-15': { bg: '#A4DDAB', text: '#272724' },
+  '2-16': { bg: '#F0A580', text: '#272724' },
+  '2-17': { bg: '#FDE478', text: '#272724' },
+  '2-18': { bg: '#9CC4FF', text: '#272724' },
+  '2-19': { bg: '#A4DDAB', text: '#272724' },
+  '2-20': { bg: '#F0A580', text: '#272724' },
+  '2-21': { bg: '#A4DDAB', text: '#272724' },
+  '2-22': { bg: '#9CC4FF', text: '#272724' },
+  '2-23': { bg: '#FDE478', text: '#272724' },
+  '2-24': { bg: '#A4DDAB', text: '#272724' },
+  '2-25': { bg: '#F0A580', text: '#272724' },
+  '2-26': { bg: '#9CC4FF', text: '#272724' },
+  '2-27': { bg: '#A4DDAB', text: '#272724' },
+  '2-28': { bg: '#FDE478', text: '#272724' },
+  '2-29': { bg: '#9CC4FF', text: '#272724' },
+  '2-30': { bg: '#F0A580', text: '#272724' },
+  '2-31': { bg: '#A4DDAB', text: '#272724' },
 }
 
 const FUTURE_CELL = { bg: '#E0E6FF', text: '#272724' }
-const TODAY = 10
+const TODAY_CELL  = { bg: '#272724', text: '#FFFEFA' }
 
 const DAY_HEADERS = ['L', 'M', 'X', 'J', 'V', 'S', 'D']
+const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
-// March 2026: starts on Sunday (index 6 in 0-based L-M-X-J-V-S-D), 31 days
-// offset = 6 (6 empty cells at start of grid for the first row)
-const MARCH_OFFSET = 6
-const MARCH_DAYS = 31
+type CalendarCell = {
+  day: number
+  month: number // 0-indexed absolute month in YEAR
+  monthOffset: number // -1=prev, 0=current, 1=next
+}
 
-// Build the full calendar cells array (offset nulls + days 1–31 + trailing nulls for complete rows)
-function buildMonthCells() {
-  const cells: (number | null)[] = []
-  // leading empty cells (Feb overflow: 23–28)
-  const febOverflow = [23, 24, 25, 26, 27, 28]
-  for (let i = 0; i < MARCH_OFFSET; i++) {
-    cells.push(-(febOverflow[i])) // negative = Feb day, handled specially
+function buildMonthCells(monthIndex: number): CalendarCell[] {
+  const firstDay = new Date(YEAR, monthIndex, 1)
+  const daysInMonth = new Date(YEAR, monthIndex + 1, 0).getDate()
+  const prevMonthDays = new Date(YEAR, monthIndex, 0).getDate()
+  // Mon-first: Sun=6, Mon=0, Tue=1...
+  const firstDayOfWeek = (firstDay.getDay() + 6) % 7
+
+  const cells: CalendarCell[] = []
+
+  // Leading: prev month overflow
+  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+    cells.push({ day: prevMonthDays - i, month: monthIndex - 1, monthOffset: -1 })
   }
-  for (let d = 1; d <= MARCH_DAYS; d++) {
-    cells.push(d)
+
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, month: monthIndex, monthOffset: 0 })
   }
-  // trailing (April overflow: 1–5) to fill last row
-  const totalCells = cells.length
-  const remainder = totalCells % 7
+
+  // Trailing: next month overflow
+  const remainder = cells.length % 7
   if (remainder !== 0) {
-    const trailing = 7 - remainder
-    for (let i = 1; i <= trailing; i++) cells.push(-(100 + i)) // negative 100s = April
+    for (let d = 1; d <= 7 - remainder; d++) {
+      cells.push({ day: d, month: monthIndex + 1, monthOffset: 1 })
+    }
   }
+
   return cells
 }
 
-// Current week containing day 10: the row where 10 falls
-// offset 6 means day 1 is at index 6 → day 10 is at index 15 → row 3 (0-indexed row 2)
-function buildWeekCells() {
-  const allCells = buildMonthCells()
-  const idx = allCells.findIndex(c => c === TODAY)
-  const rowStart = Math.floor(idx / 7) * 7
-  return allCells.slice(rowStart, rowStart + 7)
-}
+function getCellInfo(cell: CalendarCell): {
+  bg: string; text: string; opacity: number; isToday: boolean; isFuture: boolean
+} {
+  const isToday = cell.month === THIS_MONTH && cell.day === THIS_DAY
+  const isPast = cell.month < THIS_MONTH || (cell.month === THIS_MONTH && cell.day < THIS_DAY)
+  const isFuture = !isToday && !isPast
 
-function getCellStyle(cell: number | null): { bg: string; text: string } {
-  if (cell === null) return FUTURE_CELL
-  if (cell < 0) {
-    // Feb overflow (negative single digits) or April overflow (negative 100s)
-    const absDay = Math.abs(cell)
-    if (absDay >= 100) return FUTURE_CELL // April
-    // Feb
-    const mood = MOOD_COLORS[absDay]
-    return mood || FUTURE_CELL
-  }
-  if (cell === TODAY) return MOOD_COLORS[TODAY]
-  if (cell < TODAY) return MOOD_COLORS[cell] || FUTURE_CELL
-  return FUTURE_CELL
-}
+  if (isToday && cell.monthOffset === 0) return { ...TODAY_CELL, opacity: 1, isToday: true, isFuture: false }
 
-function getCellLabel(cell: number | null): string {
-  if (cell === null) return ''
-  if (cell < 0) {
-    const absDay = Math.abs(cell)
-    if (absDay >= 100) return String(absDay - 100) // April: 101→1, 102→2...
-    return String(absDay) // Feb day
-  }
-  return String(cell)
-}
+  const key = `${cell.month}-${cell.day}`
+  const mood = MOOD_COLORS[key]
 
-const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+  if (isFuture) return { ...FUTURE_CELL, opacity: cell.monthOffset !== 0 ? 0.45 : 1, isToday: false, isFuture: true }
+  if (mood) return { ...mood, opacity: cell.monthOffset !== 0 ? 0.45 : 1, isToday: false, isFuture: false }
+
+  // Past but no mood recorded
+  return { bg: '#EFEFEF', text: '#272724', opacity: cell.monthOffset !== 0 ? 0.35 : 0.6, isToday: false, isFuture: false }
+}
 
 // Events from Figma
 const EVENTS = [
@@ -112,10 +130,9 @@ const EVENTS = [
 export default function MoodHistoryScreen({ onNavigate }: Props) {
   const [period, setPeriod] = useState<Period>('Mes')
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [monthIndex, setMonthIndex] = useState(2) // March = index 2
+  const [monthIndex, setMonthIndex] = useState(THIS_MONTH)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -126,31 +143,30 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const monthCells = buildMonthCells()
-  const weekCells = buildWeekCells()
+  const monthCells = buildMonthCells(monthIndex)
+
+  // Week view: row containing today (or first row if today not in current month)
+  const weekCells = (() => {
+    const todayIdx = monthCells.findIndex(c => c.month === THIS_MONTH && c.day === THIS_DAY)
+    const start = todayIdx >= 0 ? Math.floor(todayIdx / 7) * 7 : 0
+    return monthCells.slice(start, start + 7)
+  })()
+
   const displayCells = period === 'Mes' ? monthCells : weekCells
 
-  // Split month cells into rows of 7
-  const rows: (number | null)[][] = []
+  const rows: CalendarCell[][] = []
   for (let i = 0; i < displayCells.length; i += 7) {
     rows.push(displayCells.slice(i, i + 7))
   }
 
-  const prevMonth = MONTHS[(monthIndex - 1 + 12) % 12]
-  const nextMonth = MONTHS[(monthIndex + 1) % 12]
-  const currentMonthName = MONTHS[monthIndex]
-
-  function selectPeriod(p: Period) {
-    setPeriod(p)
-    setDropdownOpen(false)
-  }
+  const prevMonthName = MONTHS[(monthIndex - 1 + 12) % 12]
+  const nextMonthName = MONTHS[(monthIndex + 1) % 12]
 
   return (
     <div
       className="flex flex-col h-full overflow-y-auto scroll-hide"
       style={{ background: '#FFFEFA', fontFamily: 'Quicksand, sans-serif' }}
     >
-      {/* Header greeting */}
       <div className="px-5 pt-12 pb-5">
         <p className="text-[18px] leading-[1.3] text-[#272724]">
           ¡Hola Sofia! <br />
@@ -158,14 +174,12 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
         </p>
       </div>
 
-      {/* Mood history section */}
       <div className="flex-1 px-5">
 
         {/* Title row + period button */}
         <div className="flex items-center justify-between mb-4">
           <p className="text-[20px] font-normal text-[#272724]">Mood history</p>
 
-          {/* Dropdown wrapper */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setDropdownOpen(v => !v)}
@@ -181,7 +195,6 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
               />
             </button>
 
-            {/* Animated dropdown panel */}
             <div
               className="absolute right-0 mt-1 rounded-2xl overflow-hidden shadow-lg z-50 transition-all duration-200"
               style={{
@@ -196,7 +209,7 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
               {(['Semana', 'Mes'] as Period[]).map(opt => (
                 <button
                   key={opt}
-                  onClick={() => selectPeriod(opt)}
+                  onClick={() => { setPeriod(opt); setDropdownOpen(false) }}
                   className="w-full px-5 py-3 text-left text-[13px] text-[#272724] transition-colors hover:bg-[#F0F3FF] active:scale-95"
                   style={{
                     background: period === opt ? '#C2CDFF' : 'transparent',
@@ -216,16 +229,16 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
             onClick={() => setMonthIndex(i => (i - 1 + 12) % 12)}
             className="text-[12px] font-medium text-[#272724] opacity-25 hover:opacity-60 transition-opacity"
           >
-            {'< '}{prevMonth}
+            {'< '}{prevMonthName}
           </button>
           <p className="text-[16px] font-bold text-[#272724] text-center w-[107px]">
-            {currentMonthName}
+            {MONTHS[monthIndex]}
           </p>
           <button
             onClick={() => setMonthIndex(i => (i + 1) % 12)}
             className="text-[12px] font-medium text-[#272724] opacity-25 hover:opacity-60 transition-opacity"
           >
-            {nextMonth}{' >'}
+            {nextMonthName}{' >'}
           </button>
         </div>
 
@@ -242,21 +255,20 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
           ))}
         </div>
 
-        {/* Calendar grid — animates when period changes */}
+        {/* Calendar grid */}
         <div
-          key={period}
+          key={`${period}-${monthIndex}`}
           className="grid grid-cols-7 gap-x-[14px] gap-y-[12px] px-4 py-2 mb-4 animate-fade-in"
         >
           {rows.flat().map((cell, idx) => {
-            const { bg, text } = getCellStyle(cell)
-            const label = getCellLabel(cell)
+            const { bg, text, opacity } = getCellInfo(cell)
             return (
               <div
                 key={idx}
                 className="flex items-center justify-center rounded-full text-[15px] font-medium cursor-pointer transition-transform active:scale-90"
-                style={{ width: 40, height: 40, background: bg, color: text, flexShrink: 0 }}
+                style={{ width: 40, height: 40, background: bg, color: text, opacity, flexShrink: 0 }}
               >
-                {label}
+                {cell.day}
               </div>
             )
           })}
@@ -288,7 +300,6 @@ export default function MoodHistoryScreen({ onNavigate }: Props) {
         </div>
       </div>
 
-      {/* Bottom Nav — calendar icon active */}
       <BottomNav
         onNavigate={onNavigate}
         onAddPress={() => onNavigate('emotion-step1')}
