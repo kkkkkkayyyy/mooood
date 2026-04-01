@@ -561,6 +561,19 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                       >
                         <span className="font-quicksand font-bold" style={{ fontSize: 12, color: '#FFFEFA' }}>{isNoEmotionPast ? 'Registrar' : 'Más información'}</span>
                       </button>
+                      {!isNoEmotionPast && (
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setDeletedKeys(prev => new Set([...prev, `${selectedDayIndex}-${event.id}`]))
+                          }}
+                          className="mt-2 w-full flex items-center justify-center gap-2 rounded-xl"
+                          style={{ padding: '11px 32px', cursor: 'pointer', opacity: 0.5 }}
+                        >
+                          <Trash2 size={13} strokeWidth={2} color="#272724" />
+                          <span className="font-quicksand font-medium" style={{ fontSize: 12, color: '#272724' }}>Borrar evento</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </button>
