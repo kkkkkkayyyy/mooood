@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, Pencil, Check } from 'lucide-react'
+import { ArrowLeft, Pencil, Check, Trash2 } from 'lucide-react'
 import BottomNav from '../components/BottomNav'
 import { Screen } from '../App'
 import tensionImg from '../assets/Tension.png'
@@ -29,6 +29,7 @@ export interface EventDetail {
 interface Props {
   onNavigate: (screen: Screen) => void
   event?: EventDetail
+  onDelete?: () => void
 }
 
 // BPM chart with time (X) and BPM (Y) axes
@@ -118,7 +119,7 @@ function EmotionDot({ label, color, size = 36 }: { label: string; color: string;
   )
 }
 
-export default function EventDetailScreen({ onNavigate, event }: Props) {
+export default function EventDetailScreen({ onNavigate, event, onDelete }: Props) {
   if (!event) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center" style={{ background: '#FFFEFA' }}>
@@ -281,7 +282,7 @@ export default function EventDetailScreen({ onNavigate, event }: Props) {
         </div>
 
         {/* Recommendations */}
-        <div className="rounded-2xl px-4 py-4 mb-2" style={{ background: '#F0F3FF' }}>
+        <div className="rounded-2xl px-4 py-4 mb-5" style={{ background: '#F0F3FF' }}>
           <p className="font-quicksand font-semibold mb-2" style={{ fontSize: 13, color: '#272724' }}>Recomendación</p>
           <p className="font-quicksand" style={{ fontSize: 12, color: '#656359', lineHeight: 1.6 }}>
             {isHighVfc
@@ -289,6 +290,18 @@ export default function EventDetailScreen({ onNavigate, event }: Props) {
               : '¡Buen estado de recuperación! Aprovecha este momento para tareas que requieran concentración y creatividad.'}
           </p>
         </div>
+
+        {/* Delete event */}
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl mb-2"
+            style={{ padding: '14px', border: '1.5px solid #E0E0E0' }}
+          >
+            <Trash2 size={14} strokeWidth={2} color="#9B9789" />
+            <span className="font-quicksand font-medium" style={{ fontSize: 13, color: '#9B9789' }}>Borrar evento</span>
+          </button>
+        )}
 
       </div>
 

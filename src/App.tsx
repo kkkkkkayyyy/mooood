@@ -50,6 +50,7 @@ export default function App() {
   const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [selectedEvent, setSelectedEvent] = useState<EventDetail | undefined>(undefined)
+  const [selectedEventDayIndex, setSelectedEventDayIndex] = useState<number>(0)
   const [wearableConnected, setWearableConnected] = useState(false)
   const [wearableReturnTo, setWearableReturnTo] = useState<Screen>('home')
   const [contextEventName, setContextEventName] = useState<string>('')
@@ -112,6 +113,14 @@ export default function App() {
     setScreen('system-summary')
   }
 
+  const onDeleteEvent = () => {
+    if (selectedEvent) {
+      const key = `${selectedEventDayIndex}-${selectedEvent.id}`
+      setDeletedKeys(prev => new Set([...prev, key]))
+    }
+    setScreen('home')
+  }
+
   const onAuthSuccess = () => {
     setScreen('home')
   }
@@ -160,9 +169,9 @@ export default function App() {
       case 'wearable-search':
         return <WearableSearchScreen onNavigate={navigate} returnTo={wearableReturnTo} onConnected={onConnectWearable} />
       case 'home':
-        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev) => { setSelectedEvent(ev); setScreen('event-detail') }} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} nameOverrides={nameOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
+        return <HomeScreen onNavigate={navigate} userName={userName} wearableConnected={wearableConnected} onEventDetail={(ev, dayIndex) => { setSelectedEvent(ev); setSelectedEventDayIndex(dayIndex); setScreen('event-detail') }} onRegisterEvent={onRegisterEvent} emotionOverrides={emotionOverrides} nameOverrides={nameOverrides} customEvents={customEvents} setCustomEvents={setCustomEvents} deletedKeys={deletedKeys} setDeletedKeys={setDeletedKeys} />
       case 'event-detail':
-        return <EventDetailScreen onNavigate={navigate} event={selectedEvent} />
+        return <EventDetailScreen onNavigate={navigate} event={selectedEvent} onDelete={onDeleteEvent} />
       case 'profile':
         return <ProfileScreen onNavigate={navigate} userName={userName} userEmail={userEmail} wearableConnected={wearableConnected} onConnectWearable={() => { setWearableReturnTo('profile'); setScreen('wearable-search') }} onDisconnectWearable={onDisconnectWearable} />
       case 'mood-history':

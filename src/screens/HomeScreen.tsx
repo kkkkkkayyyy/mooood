@@ -20,7 +20,7 @@ interface Props {
   onNavigate: (screen: Screen) => void
   userName?: string
   wearableConnected?: boolean
-  onEventDetail?: (event: EventDetail) => void
+  onEventDetail?: (event: EventDetail, dayIndex: number) => void
   onRegisterEvent?: (eventName: string, dayIndex?: number, eventId?: number, dayEvents?: EventItem[]) => void
   emotionOverrides?: Record<string, string>
   nameOverrides?: Record<string, string>
@@ -554,14 +554,14 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                         onClick={(e) => {
                           e.stopPropagation()
                           if (isNoEmotionPast) onRegisterEvent ? onRegisterEvent(event.name, selectedDayIndex, event.id, activeEvents) : onNavigate('emotion-step1')
-                          else onEventDetail?.(event)
+                          else onEventDetail?.(event, selectedDayIndex)
                         }}
                         className="mt-4 w-full flex items-center justify-center rounded-xl"
                         style={{ background: '#272724', padding: '11px 32px' }}
                       >
                         <span className="font-quicksand font-bold" style={{ fontSize: 12, color: '#FFFEFA' }}>{isNoEmotionPast ? 'Registrar' : 'Más información'}</span>
                       </button>
-                      {!isNoEmotionPast && (
+                      {isNoEmotionPast && (
                         <div
                           onClick={(e) => {
                             e.stopPropagation()
