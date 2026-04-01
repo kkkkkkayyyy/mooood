@@ -460,7 +460,7 @@ export default function HomeScreen({ onNavigate, userName, wearableConnected = f
                     style={{
                       width: 36, height: 36,
                       background: cell.bg,
-                      color: cell.faded ? '#A0A0A0' : cell.text,
+                      color: cell.faded ? '#555555' : cell.text,
                       fontSize: 13,
                       margin: '0 auto',
                       opacity: cell.faded ? 0.45 : 1,
