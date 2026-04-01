@@ -77,7 +77,7 @@ export default function ProfileScreen({ onNavigate, userName, userEmail, wearabl
     <div className="flex-1 flex flex-col overflow-hidden" style={{ background: '#FFFEFA' }}>
       {/* Header */}
       <div className="flex-shrink-0 pt-14 px-5 pb-4">
-        <span className="font-quicksand font-semibold" style={{ fontSize: 16, color: '#9B9789' }}>Más información</span>
+        <span className="font-quicksand font-semibold" style={{ fontSize: 16, color: '#9B9789' }}>Perfil</span>
       </div>
 
       {/* Scrollable content */}
